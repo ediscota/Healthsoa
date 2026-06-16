@@ -48,3 +48,7 @@ docker-volumes/
 # File temporanei
 *.swp
 *~
+
+# Repository delle properties: è un repository git separato (vedi CLAUDE.md),
+# non deve essere tracciato come sottocartella di questo repo.
+/healthsoa-properties-repository/
