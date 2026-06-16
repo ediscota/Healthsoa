@@ -1,0 +1,50 @@
+# Compilato Maven
+**/target/
+**/*.jar
+**/*.war
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse / Spring Tool Suite
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+.sts4-cache/
+.apt_generated/
+.apt_generated_test/
+
+# VS Code
+.vscode/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Log
+*.log
+logs/
+
+# Volumi e dati Docker locali
+.docker/
+docker-volumes/
+
+# File di ambiente locali (chiavi, credenziali)
+.env
+.env.local
+
+# File temporanei
+*.swp
+*~
