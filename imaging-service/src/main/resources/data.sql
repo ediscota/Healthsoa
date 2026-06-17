@@ -1,0 +1,6 @@
+INSERT INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`) VALUES
+('1', 'RX_TORACE', 'COMPLETED', 'Opacità parailare destra compatibile con addensamento polmonare. Silhouette cardiaca nei limiti. Seni costofrenici liberi.', 'Quadro radiologico suggestivo di polmonite lobare destra.', true, '2026-05-10', NULL),
+('1', 'ECO_ADDOME', 'COMPLETED', 'Fegato di dimensioni nei limiti, struttura omogenea. Reni normoconformati. Milza nella norma.', 'Esame nella norma.', false, '2026-04-22', NULL),
+('2', 'RM_CRANIO', 'COMPLETED', 'Strutture della linea mediana in asse. Segnale parenchimale nei limiti della norma per età. Non evidenza di lesioni focali.', 'Esame nei limiti della norma.', false, '2026-05-15', NULL),
+('2', 'TC_ADDOME', 'COMPLETED', 'Fegato di dimensioni nei limiti, struttura omogenea. Modesta falda di versamento libero in sede pelvica.', 'Versamento peritoneale di modesta entità. Rivalutazione clinica consigliata.', true, '2026-05-20', NULL),
+('3', 'ECO_ADDOME', 'COMPLETED', 'Fegato di dimensioni aumentate (diametro longitudinale 18 cm), ecostruttura iperecogena compatibile con steatosi epatica. Colecisti distesa, pareti regolari.', 'Steatosi epatica di grado moderato. Follow-up raccomandato.', false, '2026-06-01', NULL);
