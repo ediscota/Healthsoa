@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    WSDL contract-first per l'Anagrafe Pazienti (Provider 1 - HealthSOA).
+    Espone tre operazioni:
+      getPatientById    : dati anagrafici completi di un paziente
+      getMedicalHistory : lista di diagnosi e ricoveri pregressi (Condition ICD-10)
+      getAllergies       : allergie note con tipo di reazione
+
+    I tipi rispecchiano il modello dati definito in docs/specifica_applicativa.md paragrafo 5.
+    Namespace target: http://anagrafe.healthsoa.sose.univaq.disim.it/
+-->
+<definitions
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:tns="http://anagrafe.healthsoa.sose.univaq.disim.it/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://anagrafe.healthsoa.sose.univaq.disim.it/"
+        name="AnagrafeService">
+
+    <types>
+        <xsd:schema targetNamespace="http://anagrafe.healthsoa.sose.univaq.disim.it/">
+
+            <!-- Sesso del paziente -->
+            <xsd:simpleType name="Gender">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="M"/>
+                    <xsd:enumeration value="F"/>
+                    <xsd:enumeration value="OTHER"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <!-- Stato di una condizione clinica: attiva o risolta -->
+            <xsd:simpleType name="ConditionStatus">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ACTIVE"/>
+                    <xsd:enumeration value="RESOLVED"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <!-- Severita della reazione allergica: lieve, grave, anafilattica -->
+            <xsd:simpleType name="ReactionSeverity">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="MILD"/>
+                    <xsd:enumeration value="SEVERE"/>
+                    <xsd:enumeration value="ANAPHYLACTIC"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <!--
+                Patient: identificativo, codice fiscale, nome, data di nascita, sesso, recapito.
+                Corrisponde alla struttura Patient definita in specifica_applicativa.md paragrafo 5.
+            -->
+            <xsd:complexType name="Patient">
+                <xsd:sequence>
+                    <xsd:element name="id"          type="xsd:long"/>
+                    <xsd:element name="fiscalCode"  type="xsd:string"/>
+                    <xsd:element name="firstName"   type="xsd:string"/>
+                    <xsd:element name="lastName"    type="xsd:string"/>
+                    <xsd:element name="dateOfBirth" type="xsd:date"/>
+                    <xsd:element name="gender"      type="tns:Gender"/>
+                    <xsd:element name="phone"       type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!--
+                Condition: singola diagnosi o ricovero pregresso.
+                icd10Code segue la classificazione ICD-10.
+                Corrisponde alla struttura Condition in specifica_applicativa.md paragrafo 5.
+            -->
+            <xsd:complexType name="Condition">
+                <xsd:sequence>
+                    <xsd:element name="id"          type="xsd:long"/>
+                    <xsd:element name="icd10Code"   type="xsd:string"/>
+                    <xsd:element name="description" type="xsd:string"/>
+                    <xsd:element name="onsetDate"   type="xsd:date"/>
+                    <xsd:element name="status"      type="tns:ConditionStatus"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!--
+                Allergy: sostanza allergizzante, tipo di reazione, data di rilevamento.
+                Corrisponde alla struttura Allergy in specifica_applicativa.md paragrafo 5.
+            -->
+            <xsd:complexType name="Allergy">
+                <xsd:sequence>
+                    <xsd:element name="id"               type="xsd:long"/>
+                    <xsd:element name="substance"        type="xsd:string"/>
+                    <xsd:element name="reactionSeverity" type="tns:ReactionSeverity"/>
+                    <xsd:element name="detectedDate"     type="xsd:date"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Lista di Condition usata nella risposta getMedicalHistory -->
+            <xsd:complexType name="ConditionList">
+                <xsd:sequence>
+                    <xsd:element name="condition" type="tns:Condition"
+                                 minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Lista di Allergy usata nella risposta getAllergies -->
+            <xsd:complexType name="AllergyList">
+                <xsd:sequence>
+                    <xsd:element name="allergy" type="tns:Allergy"
+                                 minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Request/Response getPatientById -->
+            <xsd:element name="getPatientByIdRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="patientId" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="getPatientByIdResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="patient" type="tns:Patient"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Request/Response getMedicalHistory -->
+            <xsd:element name="getMedicalHistoryRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="patientId" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="getMedicalHistoryResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="medicalHistory" type="tns:ConditionList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Request/Response getAllergies -->
+            <xsd:element name="getAllergiesRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="patientId" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="getAllergiesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="allergies" type="tns:AllergyList"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+        </xsd:schema>
+    </types>
+
+    <!-- MESSAGES -->
+    <message name="getPatientByIdRequest">
+        <part name="parameters" element="tns:getPatientByIdRequest"/>
+    </message>
+    <message name="getPatientByIdResponse">
+        <part name="parameters" element="tns:getPatientByIdResponse"/>
+    </message>
+
+    <message name="getMedicalHistoryRequest">
+        <part name="parameters" element="tns:getMedicalHistoryRequest"/>
+    </message>
+    <message name="getMedicalHistoryResponse">
+        <part name="parameters" element="tns:getMedicalHistoryResponse"/>
+    </message>
+
+    <message name="getAllergiesRequest">
+        <part name="parameters" element="tns:getAllergiesRequest"/>
+    </message>
+    <message name="getAllergiesResponse">
+        <part name="parameters" element="tns:getAllergiesResponse"/>
+    </message>
+
+    <!-- PORT TYPE: interfaccia del servizio con le tre operazioni -->
+    <portType name="AnagrafePortType">
+
+        <operation name="getPatientById">
+            <input  message="tns:getPatientByIdRequest"/>
+            <output message="tns:getPatientByIdResponse"/>
+        </operation>
+
+        <operation name="getMedicalHistory">
+            <input  message="tns:getMedicalHistoryRequest"/>
+            <output message="tns:getMedicalHistoryResponse"/>
+        </operation>
+
+        <operation name="getAllergies">
+            <input  message="tns:getAllergiesRequest"/>
+            <output message="tns:getAllergiesResponse"/>
+        </operation>
+
+    </portType>
+
+    <!-- BINDING: SOAP 1.1, document/literal wrapped -->
+    <binding name="AnagrafeBinding" type="tns:AnagrafePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <operation name="getPatientById">
+            <soap:operation soapAction="getPatientById"/>
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+
+        <operation name="getMedicalHistory">
+            <soap:operation soapAction="getMedicalHistory"/>
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+
+        <operation name="getAllergies">
+            <soap:operation soapAction="getAllergies"/>
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+
+    </binding>
+
+    <!-- SERVICE: indirizzo di deploy su /soap/anagrafe -->
+    <service name="AnagrafeService">
+        <port name="AnagrafePort" binding="tns:AnagrafeBinding">
+            <soap:address location="http://localhost:9101/soap/anagrafe"/>
+        </port>
+    </service>
+
+</definitions>
