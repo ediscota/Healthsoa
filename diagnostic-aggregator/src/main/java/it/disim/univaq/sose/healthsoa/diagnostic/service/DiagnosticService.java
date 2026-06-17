@@ -128,6 +128,35 @@ public class DiagnosticService {
         entry.setStatus("COMPLETED");
     }
 
+    /**
+     * Endpoint sincrono per il Care Coordinator (UC-1).
+     * Crea un ordine di laboratorio, attende il completamento tramite polling,
+     * recupera imaging archiviato e restituisce un DiagnosticBundle completo.
+     * Chiamato da CompletableFuture.supplyAsync() nel coordinator: blocca il thread
+     * dell'executor, non il thread HTTP del coordinator.
+     */
+    public DiagnosticBundle getBundle(String patientId) {
+        LabOrderResponse labResponse = laboratorioClient.submitOrder(
+                new LabOrderRequest(patientId, "PANEL_RENAL"));
+        Long labOrderId = labResponse.getOrderId();
+
+        String status = "PENDING";
+        int attempts = 0;
+        while (attempts < 30 && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+            try { Thread.sleep(2000); } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            status = laboratorioClient.getStatus(labOrderId).getStatus();
+            attempts++;
+        }
+
+        TestResultDto testResult = "COMPLETED".equals(status)
+                ? laboratorioClient.getResult(labOrderId) : null;
+        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId);
+        return new DiagnosticBundle(patientId, testResult, imagingReports);
+    }
+
     private TrackingEntry findEntry(String trackingId) {
         TrackingEntry entry = trackingMap.get(trackingId);
         if (entry == null) {

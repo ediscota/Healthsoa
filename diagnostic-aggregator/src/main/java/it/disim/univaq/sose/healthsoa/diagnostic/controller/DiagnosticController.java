@@ -68,6 +68,15 @@ public class DiagnosticController {
     }
 
     /**
+     * Endpoint sincrono per il Care Coordinator: ordina PANEL_RENAL, aspetta il
+     * completamento del lab tramite polling interno, restituisce DiagnosticBundle completo.
+     */
+    @GetMapping("/patients/{patientId}/bundle")
+    public ResponseEntity<DiagnosticBundle> getBundle(@PathVariable String patientId) {
+        return ResponseEntity.ok(diagnosticService.getBundle(patientId));
+    }
+
+    /**
      * Endpoint di callback interno: invocato dal laboratorio-service quando l'esame è COMPLETED.
      * Non esposto al client esterno — è chiamato esclusivamente dal laboratorio via webhook.
      */

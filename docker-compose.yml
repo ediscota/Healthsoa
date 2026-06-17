@@ -180,6 +180,22 @@ services:
       discovery-server:
         condition: service_healthy
 
+  # ── Care Coordinator ──────────────────────────────────────────────────────
+  care-coordinator:
+    build: ./care-coordinator
+    container_name: healthsoa-coordinator
+    networks: [healthsoa-net]
+    ports:
+      - "9203:9203"
+    environment:
+      CONFIG_SERVER_HOST: config-server
+      EUREKA_SERVER_HOST: discovery-server
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
   # ── Laboratorio Service ────────────────────────────────────────────────────
   laboratorio-service:
     build: ./laboratorio-service
