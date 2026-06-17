@@ -1,0 +1,1 @@
+-- Nessun dato iniziale: gli ordini sono creati a runtime via POST /tests/orders.
