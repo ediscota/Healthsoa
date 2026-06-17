@@ -1,0 +1,146 @@
+version: "3.9"
+
+# Rete interna condivisa da tutti i container
+networks:
+  healthsoa-net:
+    driver: bridge
+
+# Volume persistente per MySQL (i dati sopravvivono al restart)
+volumes:
+  mysql-data:
+
+services:
+
+  # ── MySQL ──────────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8
+    container_name: healthsoa-mysql
+    networks: [healthsoa-net]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Config Server ──────────────────────────────────────────────────────────
+  config-server:
+    build: ./healthsoa-config-server
+    container_name: healthsoa-config-server
+    networks: [healthsoa-net]
+    ports:
+      - "8888:8888"
+    environment:
+      # Monta il repo delle properties su /config-repo dentro il container
+      PROPERTIES_REPO_PATH: /config-repo
+    volumes:
+      # La cartella sorella viene montata in sola lettura
+      - ../healthsoa-properties-repository:/config-repo:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Discovery Server (Eureka) ──────────────────────────────────────────────
+  discovery-server:
+    build: ./healthsoa-discovery-server
+    container_name: healthsoa-discovery-server
+    networks: [healthsoa-net]
+    ports:
+      - "8761:8761"
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── API Gateway ────────────────────────────────────────────────────────────
+  gateway:
+    build: ./healthsoa-gateway
+    container_name: healthsoa-gateway
+    networks: [healthsoa-net]
+    ports:
+      - "9000:9000"
+    environment:
+      CONFIG_SERVER_HOST: config-server
+      EUREKA_SERVER_HOST: discovery-server
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  # ── Anagrafe Service (SOAP) ────────────────────────────────────────────────
+  anagrafe-service:
+    build: ./anagrafe-service
+    container_name: healthsoa-anagrafe
+    networks: [healthsoa-net]
+    ports:
+      - "9101:9101"
+    environment:
+      CONFIG_SERVER_HOST: config-server
+      EUREKA_SERVER_HOST: discovery-server
+      MYSQL_HOST: mysql
+      MYSQL_DB: anagrafe
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  # ── Farmacia Service ───────────────────────────────────────────────────────
+  farmacia-service:
+    build: ./farmacia-service
+    container_name: healthsoa-farmacia
+    networks: [healthsoa-net]
+    ports:
+      - "9103:9103"
+    environment:
+      CONFIG_SERVER_HOST: config-server
+      EUREKA_SERVER_HOST: discovery-server
+      MYSQL_HOST: mysql
+      MYSQL_DB: farmacia
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  # ── Laboratorio Service ────────────────────────────────────────────────────
+  laboratorio-service:
+    build: ./laboratorio-service
+    container_name: healthsoa-laboratorio
+    networks: [healthsoa-net]
+    ports:
+      - "9102:9102"
+    environment:
+      CONFIG_SERVER_HOST: config-server
+      EUREKA_SERVER_HOST: discovery-server
+      MYSQL_HOST: mysql
+      MYSQL_DB: laboratorio
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
