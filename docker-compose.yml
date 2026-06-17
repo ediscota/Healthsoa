@@ -196,6 +196,14 @@ services:
       discovery-server:
         condition: service_healthy
 
+  # ── Web Client ────────────────────────────────────────────────────────────
+  healthsoa-client:
+    build: ./healthsoa-client
+    container_name: healthsoa-client
+    networks: [healthsoa-net]
+    ports:
+      - "8080:80"
+
   # ── Laboratorio Service ────────────────────────────────────────────────────
   laboratorio-service:
     build: ./laboratorio-service
