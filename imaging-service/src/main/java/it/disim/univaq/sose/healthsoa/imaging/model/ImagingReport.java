@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDate;
 
@@ -16,7 +17,8 @@ import java.time.LocalDate;
  * Può essere pre-esistente (data.sql) oppure il risultato di una richiesta asincrona.
  */
 @Entity
-@Table(name = "imaging_report")
+@Table(name = "imaging_report",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"patient_id", "exam_type", "report_date"}))
 public class ImagingReport {
 
     @Id

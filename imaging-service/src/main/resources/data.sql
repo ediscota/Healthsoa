@@ -1,11 +1,12 @@
 -- Referti di imaging pre-esistenti (RIS/PACS simulato).
 -- examType coincide con il panel code del Diagnostic Aggregator
 -- così il filtro ?examType=PANEL_* è diretto senza mapping.
--- Almeno 2 referti per pannello, distribuiti tra pazienti 1, 2 e 3.
+-- INSERT IGNORE: idempotente su più istanze (scaling), richiede unique constraint
+-- su (patient_id, exam_type, report_date) nella entity ImagingReport.
 
 -- ── PANEL_RENAL (ecografia renale, urografia) ─────────────────────────────────
 
-INSERT INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
+INSERT IGNORE INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
 VALUES
 ('1', 'PANEL_RENAL', 'COMPLETED',
  'Rene destro: dimensioni ai limiti superiori (13 cm), ecostruttura conservata. Rene sinistro nei limiti. Modesta idronefrosi destra di grado I.',
@@ -21,7 +22,7 @@ VALUES
 
 -- ── PANEL_METABOLIC (ecografia addominale, TAC addome) ───────────────────────
 
-INSERT INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
+INSERT IGNORE INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
 VALUES
 ('1', 'PANEL_METABOLIC', 'COMPLETED',
  'Fegato di dimensioni aumentate (diametro longitudinale 18 cm), ecostruttura diffusamente iperecogena compatibile con steatosi epatica moderata. Colecisti distesa, pareti regolari. Pancreas non visualizzabile per interposizione di gas.',
@@ -37,7 +38,7 @@ VALUES
 
 -- ── PANEL_CBC (radiografia torace, TAC torace) ───────────────────────────────
 
-INSERT INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
+INSERT IGNORE INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
 VALUES
 ('1', 'PANEL_CBC', 'COMPLETED',
  'Opacità parailare destra compatibile con addensamento polmonare. Silhouette cardiaca nei limiti. Seni costofrenici liberi.',
