@@ -13,5 +13,5 @@ public interface ImagingClient {
 
     @GetMapping("/patients/{patientId}/reports")
     List<ImagingReportDto> getReports(@PathVariable("patientId") String patientId,
-                                      @RequestParam("examType") String examType);
+                                      @RequestParam(name = "examType", required = false) String examType);
 }

@@ -46,7 +46,7 @@ public class DiagnosticService {
      * 4. Crea TrackingEntry in-memory e ritorna trackingId al client.
      */
     public DiagnosticOrderResponse orderDiagnostics(String patientId, DiagnosticOrderRequest request) {
-        String panelCode = request.getPanelCode() != null ? request.getPanelCode() : "PANEL_RENAL";
+        String panelCode = request.getPanelCode();
 
         LabOrderResponse labResponse = laboratorioClient.submitOrder(
                 new LabOrderRequest(patientId, panelCode));
@@ -153,7 +153,8 @@ public class DiagnosticService {
 
         TestResultDto testResult = "COMPLETED".equals(status)
                 ? laboratorioClient.getResult(labOrderId) : null;
-        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId, "PANEL_RENAL");
+        // UC-1: nessun filtro su examType → tutti i referti del paziente
+        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId, null);
         return new DiagnosticBundle(patientId, testResult, imagingReports);
     }
 
