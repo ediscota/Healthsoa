@@ -59,7 +59,7 @@ public class DiagnosticService {
         String callbackUrl = callbackBaseUrl + "/internal/callback/" + trackingId;
         laboratorioClient.registerCallback(labOrderId, new LabCallbackRequest(callbackUrl));
 
-        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId);
+        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId, panelCode);
         entry.setImagingReports(imagingReports);
 
         trackingMap.put(trackingId, entry);
@@ -153,7 +153,7 @@ public class DiagnosticService {
 
         TestResultDto testResult = "COMPLETED".equals(status)
                 ? laboratorioClient.getResult(labOrderId) : null;
-        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId);
+        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId, "PANEL_RENAL");
         return new DiagnosticBundle(patientId, testResult, imagingReports);
     }
 

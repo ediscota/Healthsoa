@@ -4,6 +4,7 @@ import it.disim.univaq.sose.healthsoa.diagnostic.dto.ImagingReportDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -11,5 +12,6 @@ import java.util.List;
 public interface ImagingClient {
 
     @GetMapping("/patients/{patientId}/reports")
-    List<ImagingReportDto> getReports(@PathVariable("patientId") String patientId);
+    List<ImagingReportDto> getReports(@PathVariable("patientId") String patientId,
+                                      @RequestParam("examType") String examType);
 }

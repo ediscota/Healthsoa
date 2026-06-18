@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class LabService {
@@ -30,24 +29,6 @@ public class LabService {
     @Value("${lab.processing.delay-ms:8000}")
     private long processingDelayMs;
 
-    /** Risultati simulati per codice esame. Realistici per la logica di rischio del Care Coordinator. */
-    private static final Map<String, List<Measurement>> EXAM_RESULTS = Map.of(
-        "PANEL_RENAL", List.of(
-            meas("Creatinina",   1.8, "mg/dL", "0.6-1.2", true),
-            meas("Azotemia",     55.0, "mg/dL", "10-50",  true),
-            meas("Sodio",        140.0, "mEq/L", "136-145", false)
-        ),
-        "PANEL_METABOLICO", List.of(
-            meas("Glicemia",     98.0, "mg/dL", "70-100",  false),
-            meas("Colesterolo",  210.0, "mg/dL", "0-200",   true),
-            meas("Trigliceridi", 145.0, "mg/dL", "0-150",   false)
-        ),
-        "PANEL_EMOCROMO", List.of(
-            meas("Emoglobina",   12.1, "g/dL",  "13.5-17.5", true),
-            meas("Leucociti",    7500.0, "cel/uL","4000-10000", false),
-            meas("Piastrine",    220000.0, "cel/uL","150000-400000", false)
-        )
-    );
 
     public LabService(TestOrderRepository orderRepository) {
         this.orderRepository = orderRepository;
@@ -137,27 +118,34 @@ public class LabService {
         }
     }
 
+    /**
+     * Costruisce le misurazioni per un nuovo ordine leggendo dal DB:
+     * cerca l'ultimo ordine COMPLETED per lo stesso paziente e pannello e ne copia i valori.
+     * Se non esiste un ordine precedente (paziente sconosciuto o primo esame),
+     * genera una misurazione generica placeholder.
+     */
     private List<Measurement> buildMeasurements(TestOrder order) {
-        List<Measurement> template = EXAM_RESULTS.get(order.getExamCode());
-        if (template != null) {
-            return template.stream().map(m -> {
-                Measurement copy = new Measurement();
-                copy.setParameter(m.getParameter());
-                copy.setValue(m.getValue());
-                copy.setUnit(m.getUnit());
-                copy.setReferenceRange(m.getReferenceRange());
-                copy.setAnomalyFlag(m.isAnomalyFlag());
-                return copy;
-            }).toList();
-        }
-        // Esame non in catalogo: genera un measurement generico senza anomalia.
-        Measurement generic = new Measurement();
-        generic.setParameter("Risultato");
-        generic.setValue(1.0);
-        generic.setUnit("u.a.");
-        generic.setReferenceRange("0-2");
-        generic.setAnomalyFlag(false);
-        return List.of(generic);
+        return orderRepository
+                .findFirstByPatientIdAndExamCodeAndStatusOrderByCreatedAtDesc(
+                        order.getPatientId(), order.getExamCode(), OrderStatus.COMPLETED)
+                .map(ref -> ref.getMeasurements().stream().map(m -> {
+                    Measurement copy = new Measurement();
+                    copy.setParameter(m.getParameter());
+                    copy.setValue(m.getValue());
+                    copy.setUnit(m.getUnit());
+                    copy.setReferenceRange(m.getReferenceRange());
+                    copy.setAnomalyFlag(m.isAnomalyFlag());
+                    return copy;
+                }).toList())
+                .orElseGet(() -> {
+                    Measurement generic = new Measurement();
+                    generic.setParameter("Risultato");
+                    generic.setValue(1.0);
+                    generic.setUnit("u.a.");
+                    generic.setReferenceRange("0-2");
+                    generic.setAnomalyFlag(false);
+                    return List.of(generic);
+                });
     }
 
     private TestResultDto toResultDto(TestOrder o) {
@@ -171,16 +159,6 @@ public class LabService {
     private TestOrder findOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-    }
-
-    private static Measurement meas(String param, double val, String unit, String ref, boolean flag) {
-        Measurement m = new Measurement();
-        m.setParameter(param);
-        m.setValue(val);
-        m.setUnit(unit);
-        m.setReferenceRange(ref);
-        m.setAnomalyFlag(flag);
-        return m;
     }
 
     // Eccezioni locali al service per mappatura HTTP nel controller

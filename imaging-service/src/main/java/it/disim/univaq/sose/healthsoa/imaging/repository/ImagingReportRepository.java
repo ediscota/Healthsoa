@@ -8,4 +8,6 @@ import java.util.List;
 public interface ImagingReportRepository extends JpaRepository<ImagingReport, Long> {
 
     List<ImagingReport> findByPatientId(String patientId);
+
+    List<ImagingReport> findByPatientIdAndExamType(String patientId, String examType);
 }

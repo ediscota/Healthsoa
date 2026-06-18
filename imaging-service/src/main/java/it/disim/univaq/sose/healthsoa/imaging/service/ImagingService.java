@@ -75,6 +75,13 @@ public class ImagingService {
     }
 
     @Transactional(readOnly = true)
+    public List<ImagingReportDto> getReportsByPatientAndExamType(String patientId, String examType) {
+        return reportRepository.findByPatientIdAndExamType(patientId, examType).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public ImagingReportDto getReport(Long reportId) {
         return toDto(findReport(reportId));
     }

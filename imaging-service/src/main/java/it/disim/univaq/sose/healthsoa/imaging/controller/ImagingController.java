@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -27,10 +28,15 @@ public class ImagingController {
         this.imagingService = imagingService;
     }
 
-    /** Referti già archiviati per un paziente (pre-esistenti o completati). */
+    /** Referti archiviati per un paziente. Filtra per examType se il parametro è presente. */
     @GetMapping("/patients/{patientId}/reports")
-    public ResponseEntity<List<ImagingReportDto>> getReportsByPatient(@PathVariable String patientId) {
-        return ResponseEntity.ok(imagingService.getReportsByPatient(patientId));
+    public ResponseEntity<List<ImagingReportDto>> getReportsByPatient(
+            @PathVariable String patientId,
+            @RequestParam(name = "examType", required = false) String examType) {
+        List<ImagingReportDto> reports = (examType != null && !examType.isBlank())
+                ? imagingService.getReportsByPatientAndExamType(patientId, examType)
+                : imagingService.getReportsByPatient(patientId);
+        return ResponseEntity.ok(reports);
     }
 
     /** Referto singolo per ID (archiviato o in lavorazione). */
