@@ -146,14 +146,12 @@ services:
   # ── Diagnostic Aggregator ─────────────────────────────────────────────────
   diagnostic-aggregator:
     build: ./diagnostic-aggregator
-    container_name: healthsoa-diagnostic
     networks: [healthsoa-net]
-    ports:
-      - "9201:9201"
+    expose:
+      - "9201"
     environment:
       CONFIG_SERVER_HOST: config-server
       EUREKA_SERVER_HOST: discovery-server
-      DIAGNOSTIC_HOST: diagnostic-aggregator
     depends_on:
       config-server:
         condition: service_healthy

@@ -150,9 +150,17 @@ I prosumer sono progetti Spring Boot REST. **Non hanno persistenza di dominio**:
 
 - Verso Laboratorio e Imaging: due `@FeignClient(name="laboratorio-service")` e `@FeignClient(name="imaging-service")`, esattamente come Filippone fa per `User`→`Job` (slide 47-48). Nessuna URL hardcodata: la risoluzione è via Eureka, il load balancing è client-side e gratuito.
 
-**Gestione dello stato asincrono**: l'aggregatore mantiene una `ConcurrentHashMap<String, TrackingEntry>` in-memory che mappa il `trackingId` esposto al client con l'`orderId` del Laboratorio. Quando il Laboratorio invoca la callback registrata, l'aggregatore aggiorna l'entry con il risultato. Il client poi recupera il risultato tramite `GET /tracking/{id}`.
+**Gestione dello stato asincrono — design stateless**:
 
-> **Nota sullo scaling**: questa scelta implica che il Diagnostic Aggregator gira in *singola istanza*. È una decisione architetturale consapevole e difendibile: i prosumer di HealthSOA sono *thin orchestrators*, non sono il collo di bottiglia. Il vincolo 13 della traccia (scaling) è soddisfatto sui provider read-heavy (Anagrafe, Laboratorio, Imaging), dove il carico realmente arriva.
+Il `trackingId` restituito al client dopo un ordine diagnostico è un token **Base64URL** che codifica le informazioni necessarie a ricostruire la risposta senza stato condiviso:
+
+```
+trackingId = Base64URL("{patientId}:{panelCode}:{labOrderId}")
+```
+
+Qualsiasi istanza dell'aggregatore che riceve una richiesta di polling (`GET /tracking/{trackingId}/status` o `GET /tracking/{trackingId}/result`) decodifica il token, interroga direttamente il laboratorio per lo stato e il risultato, e recupera i referti di imaging. Non esiste nessuna mappa in-memory, nessuna callback registrata, nessuna dipendenza dall'istanza che ha creato l'ordine.
+
+**Scaling**: replicabile in più istanze via `docker compose up --scale diagnostic-aggregator=2`. Si trova sul percorso critico di ogni workflow UC-3 e può scalare insieme ai provider che orchestra.
 
 ### 5.2 Clinical Aggregator — `clinical-aggregator`
 
@@ -401,7 +409,7 @@ volumes:
 L'uso di `expose` invece di `ports` sui servizi replicabili (Anagrafe, Laboratorio, Imaging) permette il comando di scaling:
 
 ```bash
-docker compose -p healthsoa up -d --scale laboratorio-service=3 --scale imaging-service=3 --scale anagrafe-service=2
+docker compose -p healthsoa up -d --scale laboratorio-service=3 --scale imaging-service=3 --scale anagrafe-service=2 --scale diagnostic-aggregator=2
 ```
 
 Pattern dalla slide 58. Il gateway, raggiungendo questi servizi via `lb://`, distribuisce automaticamente le richieste tra le repliche.
@@ -445,7 +453,7 @@ Per coerenza e per facilitare il debug in ambiente di sviluppo locale.
 | Laboratorio Service | 9102 | range 9111-9120 quando scalato |
 | Farmacia Service | 9103 | 9103 |
 | Imaging Service | 9104 | range 9121-9130 quando scalato |
-| Diagnostic Aggregator | 9201 | 9201 |
+| Diagnostic Aggregator | 9201 | range 9131-9140 quando scalato |
 | Clinical Aggregator | 9202 | 9202 |
 | Care Coordinator | 9203 | 9203 |
 | MySQL | 3306 | 3306 |
@@ -462,7 +470,7 @@ Per chiarezza in sede di difesa, elenco esplicito delle tecnologie scartate.
 - **Maven parent POM / multi-module**: scelta di semplicità, allineata al pattern delle slide che inizializzano ogni servizio come progetto indipendente.
 - **Maven archetype**: opzionale per la traccia (vincolo 12), non realizzato per semplicità.
 - **Lookup Eureka per il client SOAP**: il client JAX-WS dell'Anagrafe usa URL statica via Config Server. È la soluzione più semplice e replica il pattern di slide 28 (`microservice.user.find.uri`).
-- **Redis o store esterno per lo stato asincrono**: il Diagnostic Aggregator mantiene lo stato in `ConcurrentHashMap` in-memory. Conseguenza: il prosumer gira in singola istanza, decisione consapevole motivata dal fatto che i prosumer sono *thin orchestrators*, non il collo di bottiglia del sistema.
+- **Redis o store esterno per lo stato asincrono**: il Diagnostic Aggregator usa un `trackingId` stateless (token Base64URL contenente `patientId:panelCode:labOrderId`) invece di una mappa in-memory. Questo elimina qualsiasi stato condiviso tra istanze senza richiedere un database aggiuntivo. Il Clinical Aggregator e il Care Coordinator sono invece singola istanza per design: il Clinical dipende da un endpoint SOAP con URL statica (non load-balanceable via Eureka), e il Care Coordinator mantiene la logica di composizione parallela stateless ma non è un collo di bottiglia (è chiamato una volta per sessione clinica).
 - **Multi-stage Dockerfile**: i `Dockerfile` sono single-stage `mvn clean install` + `mvn spring-boot:run`, esattamente come nelle slide 51 e 55.
 - **Spring WebFlux / reactive stack**: stack imperativo standard (Spring Web MVC + Feign sincrono) come nelle slide. Il parallelismo del Care Coordinator si ottiene a livello di applicazione con `CompletableFuture` su un executor, senza introdurre un modello reattivo end-to-end.
 - **Kubernetes**: la scalabilità richiesta dalla traccia è dimostrata con `docker compose --scale`, sufficiente per gli obiettivi didattici.

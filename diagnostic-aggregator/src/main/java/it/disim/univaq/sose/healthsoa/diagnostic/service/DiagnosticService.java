@@ -6,32 +6,22 @@ import it.disim.univaq.sose.healthsoa.diagnostic.dto.DiagnosticBundle;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.DiagnosticOrderRequest;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.DiagnosticOrderResponse;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.ImagingReportDto;
-import it.disim.univaq.sose.healthsoa.diagnostic.dto.LabCallbackRequest;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.LabOrderRequest;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.LabOrderResponse;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.LabStatusDto;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.TestResultDto;
 import it.disim.univaq.sose.healthsoa.diagnostic.dto.TrackingStatusDto;
-import it.disim.univaq.sose.healthsoa.diagnostic.model.TrackingEntry;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DiagnosticService {
 
     private final LaboratorioClient laboratorioClient;
     private final ImagingClient imagingClient;
-
-    /** URL base di questo aggregatore, usata per costruire il callback verso il laboratorio. */
-    @Value("${diagnostic.aggregator.callback-base-url:http://localhost:9201}")
-    private String callbackBaseUrl;
-
-    /** Stato in-memory degli ordini diagnostici: trackingId → TrackingEntry. */
-    private final ConcurrentHashMap<String, TrackingEntry> trackingMap = new ConcurrentHashMap<>();
 
     public DiagnosticService(LaboratorioClient laboratorioClient, ImagingClient imagingClient) {
         this.laboratorioClient = laboratorioClient;
@@ -40,10 +30,9 @@ public class DiagnosticService {
 
     /**
      * Ordina un pannello di esami per un paziente.
-     * 1. Delega a laboratorio-service (POST /tests/orders) → ottiene labOrderId.
-     * 2. Registra callback sul laboratorio puntando a /internal/callback/{trackingId}.
-     * 3. Recupera i referti di imaging già archiviati (sincrono).
-     * 4. Crea TrackingEntry in-memory e ritorna trackingId al client.
+     * Il trackingId è un token Base64URL che codifica patientId:panelCode:labOrderId.
+     * Nessuno stato in-memory: qualsiasi istanza può gestire le successive richieste
+     * di polling decodificando il token e interrogando direttamente il laboratorio.
      */
     public DiagnosticOrderResponse orderDiagnostics(String patientId, DiagnosticOrderRequest request) {
         String panelCode = request.getPanelCode();
@@ -52,88 +41,46 @@ public class DiagnosticService {
                 new LabOrderRequest(patientId, panelCode));
         Long labOrderId = labResponse.getOrderId();
 
-        String trackingId = UUID.randomUUID().toString();
-
-        TrackingEntry entry = new TrackingEntry(trackingId, patientId, panelCode, labOrderId);
-
-        String callbackUrl = callbackBaseUrl + "/internal/callback/" + trackingId;
-        laboratorioClient.registerCallback(labOrderId, new LabCallbackRequest(callbackUrl));
-
-        List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId, panelCode);
-        entry.setImagingReports(imagingReports);
-
-        trackingMap.put(trackingId, entry);
+        String trackingId = encodeTrackingId(patientId, panelCode, labOrderId);
 
         return new DiagnosticOrderResponse(trackingId, "PENDING",
                 "Ordine accettato. Usa GET /tracking/" + trackingId + "/status per il polling.");
     }
 
     /**
-     * Stato corrente di un ordine diagnostico (per polling da parte del client).
-     * Sincronizza lazily con il laboratorio se l'ordine non è ancora completato:
-     * garantisce aggiornamento anche se la callback best-effort non è arrivata.
+     * Stato corrente dell'ordine diagnostico.
+     * Decodifica il trackingId e interroga direttamente il laboratorio.
+     * Stateless: può essere gestito da qualsiasi istanza.
      */
     public TrackingStatusDto getStatus(String trackingId) {
-        TrackingEntry entry = findEntry(trackingId);
-        if (!"COMPLETED".equals(entry.getStatus())) {
-            syncWithLab(entry);
-        }
-        return new TrackingStatusDto(trackingId, entry.getPatientId(),
-                entry.getPanelCode(), entry.getStatus());
+        TrackingTokenParts parts = decodeTrackingId(trackingId);
+        LabStatusDto labStatus = laboratorioClient.getStatus(parts.labOrderId);
+        return new TrackingStatusDto(trackingId, parts.patientId, parts.panelCode, labStatus.getStatus());
     }
 
     /**
      * Risultato completo dell'ordine diagnostico.
-     * Disponibile solo se lo stato è COMPLETED.
-     * Ritorna un DiagnosticBundle con esito di laboratorio + referti di imaging.
+     * Disponibile solo se il laboratorio ha completato l'elaborazione.
+     * Recupera il risultato di laboratorio e i referti di imaging in modo stateless.
      */
     public DiagnosticBundle getResult(String trackingId) {
-        TrackingEntry entry = findEntry(trackingId);
-        if (!"COMPLETED".equals(entry.getStatus())) {
-            syncWithLab(entry);
-        }
-        if (!"COMPLETED".equals(entry.getStatus())) {
-            throw new OrderNotCompletedException(trackingId, entry.getStatus());
-        }
-        return new DiagnosticBundle(entry.getPatientId(), entry.getTestResult(),
-                entry.getImagingReports());
-    }
+        TrackingTokenParts parts = decodeTrackingId(trackingId);
 
-    /**
-     * Sincronizzazione lazy con il laboratorio: interroga il lab direttamente per
-     * aggiornare lo stato della TrackingEntry. Usato come fallback quando la callback
-     * best-effort del laboratorio non è stata ricevuta (race condition su callbackUrl
-     * nella transazione del lab o errori di rete transitori).
-     */
-    private void syncWithLab(TrackingEntry entry) {
-        try {
-            LabStatusDto labStatus = laboratorioClient.getStatus(entry.getLabOrderId());
-            entry.setStatus(labStatus.getStatus());
-            if ("COMPLETED".equals(labStatus.getStatus()) && entry.getTestResult() == null) {
-                TestResultDto result = laboratorioClient.getResult(entry.getLabOrderId());
-                entry.setTestResult(result);
-            }
-        } catch (Exception ignored) {
-            // Polling best-effort: un errore transatorio non deve bloccare la risposta.
+        LabStatusDto labStatus = laboratorioClient.getStatus(parts.labOrderId);
+        if (!"COMPLETED".equals(labStatus.getStatus())) {
+            throw new OrderNotCompletedException(trackingId, labStatus.getStatus());
         }
-    }
 
-    /**
-     * Riceve la callback dal laboratorio quando l'ordine è COMPLETED.
-     * Aggiorna la TrackingEntry con il TestResult e transita lo stato a COMPLETED.
-     */
-    public void receiveCallback(String trackingId, TestResultDto testResult) {
-        TrackingEntry entry = findEntry(trackingId);
-        entry.setTestResult(testResult);
-        entry.setStatus("COMPLETED");
+        TestResultDto testResult = laboratorioClient.getResult(parts.labOrderId);
+        List<ImagingReportDto> imagingReports = imagingClient.getReports(parts.patientId, parts.panelCode);
+        return new DiagnosticBundle(parts.patientId, testResult, imagingReports);
     }
 
     /**
      * Endpoint sincrono per il Care Coordinator (UC-1).
-     * Crea un ordine di laboratorio, attende il completamento tramite polling,
+     * Crea un ordine di laboratorio, attende il completamento tramite polling interno,
      * recupera imaging archiviato e restituisce un DiagnosticBundle completo.
-     * Chiamato da CompletableFuture.supplyAsync() nel coordinator: blocca il thread
-     * dell'executor, non il thread HTTP del coordinator.
+     * Chiamato da CompletableFuture.supplyAsync() nel coordinator.
      */
     public DiagnosticBundle getBundle(String patientId) {
         LabOrderResponse labResponse = laboratorioClient.submitOrder(
@@ -153,22 +100,46 @@ public class DiagnosticService {
 
         TestResultDto testResult = "COMPLETED".equals(status)
                 ? laboratorioClient.getResult(labOrderId) : null;
-        // UC-1: nessun filtro su examType → tutti i referti del paziente
         List<ImagingReportDto> imagingReports = imagingClient.getReports(patientId, null);
         return new DiagnosticBundle(patientId, testResult, imagingReports);
     }
 
-    private TrackingEntry findEntry(String trackingId) {
-        TrackingEntry entry = trackingMap.get(trackingId);
-        if (entry == null) {
-            throw new TrackingNotFoundException(trackingId);
-        }
-        return entry;
+    // ── Encoding / decoding del trackingId ────────────────────────────────────
+
+    private String encodeTrackingId(String patientId, String panelCode, Long labOrderId) {
+        String raw = patientId + ":" + panelCode + ":" + labOrderId;
+        return Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static class TrackingNotFoundException extends RuntimeException {
-        public TrackingNotFoundException(String id) {
-            super("Tracking non trovato: " + id);
+    private TrackingTokenParts decodeTrackingId(String trackingId) {
+        try {
+            String raw = new String(Base64.getUrlDecoder().decode(trackingId), StandardCharsets.UTF_8);
+            String[] parts = raw.split(":", 3);
+            if (parts.length != 3) throw new IllegalArgumentException();
+            return new TrackingTokenParts(parts[0], parts[1], Long.parseLong(parts[2]));
+        } catch (Exception e) {
+            throw new InvalidTrackingIdException(trackingId);
+        }
+    }
+
+    private static class TrackingTokenParts {
+        final String patientId;
+        final String panelCode;
+        final Long labOrderId;
+
+        TrackingTokenParts(String patientId, String panelCode, Long labOrderId) {
+            this.patientId = patientId;
+            this.panelCode = panelCode;
+            this.labOrderId = labOrderId;
+        }
+    }
+
+    // ── Eccezioni ─────────────────────────────────────────────────────────────
+
+    public static class InvalidTrackingIdException extends RuntimeException {
+        public InvalidTrackingIdException(String id) {
+            super("TrackingId non valido o malformato: " + id);
         }
     }
 
