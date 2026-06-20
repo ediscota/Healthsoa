@@ -1,50 +1,39 @@
 package it.disim.univaq.sose.healthsoa.farmacia.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
-public class PrescriptionDto {
+/**
+ * Corpo della richiesta POST /patients/{patientId}/prescriptions.
+ * Il patientId è ricevuto dal path variable; i restanti campi obbligatori
+ * vengono validati da Jakarta Bean Validation prima che il controller
+ * invochi il service layer.
+ */
+public class CreatePrescriptionRequest {
 
-    private Long id;
-    private String patientId;
+    @NotBlank(message = "Il nome del farmaco è obbligatorio")
     private String drugName;
+
+    @NotBlank(message = "Il codice ATC è obbligatorio")
     private String atcCode;
+
+    @NotBlank(message = "Il dosaggio è obbligatorio")
     private String dosage;
+
+    @NotBlank(message = "La frequenza di somministrazione è obbligatoria")
     private String frequency;
+
+    @NotNull(message = "La data di inizio è obbligatoria")
     private LocalDate startDate;
+
     private LocalDate expectedEndDate;
+
+    @NotBlank(message = "Il medico prescrittore è obbligatorio")
     private String prescribingDoctor;
 
-    public PrescriptionDto() {
-    }
-
-    public PrescriptionDto(Long id, String patientId, String drugName, String atcCode,
-                            String dosage, String frequency,
-                            LocalDate startDate, LocalDate expectedEndDate, String prescribingDoctor) {
-        this.id = id;
-        this.patientId = patientId;
-        this.drugName = drugName;
-        this.atcCode = atcCode;
-        this.dosage = dosage;
-        this.frequency = frequency;
-        this.startDate = startDate;
-        this.expectedEndDate = expectedEndDate;
-        this.prescribingDoctor = prescribingDoctor;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
+    public CreatePrescriptionRequest() {
     }
 
     public String getDrugName() {
@@ -102,5 +91,4 @@ public class PrescriptionDto {
     public void setPrescribingDoctor(String prescribingDoctor) {
         this.prescribingDoctor = prescribingDoctor;
     }
-
 }

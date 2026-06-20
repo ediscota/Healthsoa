@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HealthSOA Client</title>
+  <title>HealthSOA — Clinical Workstation</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -17,43 +17,47 @@
     header {
       background: #16213e;
       color: #e2e8f0;
-      padding: 16px 32px;
+      padding: 14px 32px;
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    header h1 { margin: 0; font-size: 1.4rem; font-weight: 600; }
-    header span { font-size: 0.85rem; color: #94a3b8; }
+    header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; letter-spacing: .01em; }
+    header .tagline { font-size: 0.8rem; color: #64748b; margin-left: auto; }
 
     .layout {
       display: flex;
-      gap: 0;
-      height: calc(100vh - 60px);
+      height: calc(100vh - 50px);
     }
 
-    /* ── sidebar ── */
+    /* ── Sidebar ── */
     .sidebar {
-      width: 340px;
+      width: 296px;
       background: #fff;
       border-right: 1px solid #e2e8f0;
       overflow-y: auto;
-      padding: 20px 16px;
+      padding: 14px 13px;
       flex-shrink: 0;
     }
 
-    .patient-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
+    .section-label {
+      font-size: 0.67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #94a3b8;
+      margin: 14px 0 7px;
     }
+
+    .patient-row { display: flex; gap: 8px; margin-bottom: 4px; }
 
     .patient-row input {
       flex: 1;
       padding: 8px 12px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
 
     .patient-row input:focus {
@@ -62,92 +66,78 @@
       box-shadow: 0 0 0 3px rgba(59,130,246,.15);
     }
 
-    .section-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: #64748b;
-      margin: 16px 0 8px;
-    }
-
     .uc-card {
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       overflow: hidden;
     }
 
     .uc-header {
       background: #f8fafc;
-      padding: 10px 14px;
+      padding: 9px 13px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .uc-badge {
-      font-size: 0.7rem;
+      font-size: 0.66rem;
       font-weight: 700;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 4px;
-      background: #16213e;
       color: #fff;
       flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: .04em;
     }
 
-    .uc-name {
-      font-size: 0.85rem;
-      font-weight: 600;
-      flex: 1;
-    }
+    .badge-blue    { background: #2563eb; }
+    .badge-amber   { background: #d97706; }
+    .badge-emerald { background: #059669; }
+    .badge-violet  { background: #7c3aed; }
+
+    .uc-name { font-size: 0.83rem; font-weight: 600; }
 
     .uc-body {
-      padding: 10px 14px;
+      padding: 10px 13px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
     }
 
-    .uc-desc {
-      font-size: 0.78rem;
-      color: #64748b;
-      line-height: 1.5;
-    }
+    .uc-desc { font-size: 0.75rem; color: #64748b; line-height: 1.5; margin: 0; }
 
-    .uc-body label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #374151;
-    }
+    .uc-body label { font-size: 0.75rem; font-weight: 600; color: #374151; }
 
-    .uc-body select, .uc-body input[type=text] {
+    .uc-body select {
       width: 100%;
       padding: 6px 10px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.83rem;
     }
 
     .btn {
-      padding: 8px 14px;
+      padding: 7px 14px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       font-weight: 600;
       transition: opacity .15s;
     }
 
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .btn:hover:not(:disabled) { opacity: .87; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn:hover:not(:disabled) { opacity: .85; }
 
     .btn-primary { background: #2563eb; color: #fff; }
     .btn-amber   { background: #d97706; color: #fff; }
     .btn-emerald { background: #059669; color: #fff; }
     .btn-violet  { background: #7c3aed; color: #fff; }
 
-    /* ── output panel ── */
+    /* ── Output panel ── */
     .output-panel {
       flex: 1;
       display: flex;
@@ -158,94 +148,425 @@
     .output-toolbar {
       background: #fff;
       border-bottom: 1px solid #e2e8f0;
-      padding: 8px 16px;
+      padding: 8px 18px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .output-toolbar span { font-size: 0.85rem; color: #64748b; flex: 1; }
+    .output-toolbar .ot-title {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #374151;
+      flex: 1;
+    }
 
     .btn-sm {
       padding: 4px 10px;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       border: 1px solid #cbd5e1;
       background: #fff;
       border-radius: 5px;
       cursor: pointer;
+      color: #64748b;
     }
 
     .btn-sm:hover { background: #f1f5f9; }
 
     .status-bar {
-      padding: 8px 16px;
-      font-size: 0.8rem;
-      min-height: 32px;
+      padding: 5px 18px;
+      font-size: 0.78rem;
+      min-height: 29px;
       display: flex;
       align-items: center;
       gap: 8px;
+      border-bottom: 1px solid transparent;
     }
 
-    .status-bar.idle    { color: #64748b; }
-    .status-bar.loading { color: #2563eb; }
-    .status-bar.success { color: #059669; }
-    .status-bar.error   { color: #dc2626; }
+    .status-bar.idle    { color: #64748b; background: #f8fafc; border-color: #f1f5f9; }
+    .status-bar.loading { color: #2563eb; background: #eff6ff; border-color: #bfdbfe; }
+    .status-bar.success { color: #059669; background: #f0fdf4; border-color: #bbf7d0; }
+    .status-bar.error   { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
 
     .spinner {
       display: inline-block;
-      width: 14px;
-      height: 14px;
+      width: 13px; height: 13px;
       border: 2px solid currentColor;
       border-top-color: transparent;
       border-radius: 50%;
       animation: spin .7s linear infinite;
+      flex-shrink: 0;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .output-pre {
-      flex: 1;
-      margin: 0;
-      padding: 16px;
-      overflow: auto;
-      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-all;
-      background: #0d1117;
-      color: #e6edf3;
-    }
-
-    /* JSON syntax highlighting */
-    .json-key    { color: #79c0ff; }
-    .json-str    { color: #a5d6ff; }
-    .json-num    { color: #f2cc60; }
-    .json-bool   { color: #ff7b72; }
-    .json-null   { color: #8b949e; }
-
+    /* ── Poll log ── */
     .poll-log {
-      background: #161b22;
-      color: #8b949e;
-      font-family: monospace;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
       font-size: 0.77rem;
-      padding: 6px 16px;
-      border-top: 1px solid #21262d;
-      max-height: 120px;
+      padding: 5px 18px;
+      max-height: 80px;
       overflow-y: auto;
+      color: #475569;
     }
 
-    .poll-log p { margin: 2px 0; }
-    .poll-log .ok  { color: #3fb950; }
-    .poll-log .err { color: #f85149; }
-    .poll-log .wait { color: #d29922; }
+    .poll-log p {
+      margin: 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-ok   { background: #059669; }
+    .dot-wait { background: #d97706; }
+    .dot-err  { background: #dc2626; }
+
+    /* ── Clinical output area ── */
+    .output-area {
+      flex: 1;
+      padding: 18px 20px;
+      overflow-y: auto;
+      background: #f0f2f5;
+    }
+
+    /* ── Clinical cards ── */
+    .clinical-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 9px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .card-body { padding: 14px 16px; }
+    .card-body-flush { padding: 0; }
+
+    /* Outcome banner */
+    .outcome-banner {
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .outcome-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .outcome-fit      { background: #dcfce7; border: 1px solid #86efac; }
+    .outcome-reserved { background: #fef3c7; border: 1px solid #fde68a; }
+    .outcome-unfit    { background: #fee2e2; border: 1px solid #fca5a5; }
+
+    .outcome-label {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .outcome-fit      .outcome-label { color: #166534; }
+    .outcome-reserved .outcome-label { color: #92400e; }
+    .outcome-unfit    .outcome-label { color: #991b1b; }
+
+    .outcome-sub { font-size: 0.79rem; color: #6b7280; margin-top: 3px; }
+
+    /* Risk flags */
+    .risk-flag {
+      padding: 9px 12px;
+      border-radius: 6px;
+      margin-bottom: 7px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .risk-flag:last-child { margin-bottom: 0; }
+
+    .risk-flag.lvl-critical { background: #fef2f2; border-left: 3px solid #dc2626; }
+    .risk-flag.lvl-warning  { background: #fffbeb; border-left: 3px solid #d97706; }
+    .risk-flag.lvl-info     { background: #eff6ff; border-left: 3px solid #3b82f6; }
+
+    .flag-pill {
+      font-size: 0.67rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .lvl-critical .flag-pill { background: #fee2e2; color: #991b1b; }
+    .lvl-warning  .flag-pill { background: #fef3c7; color: #92400e; }
+    .lvl-info     .flag-pill { background: #dbeafe; color: #1e40af; }
+
+    .flag-text { font-size: 0.82rem; color: #374151; line-height: 1.45; }
+
+    /* Data grid */
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+
+    .data-field { display: flex; flex-direction: column; gap: 2px; }
+    .data-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; }
+    .data-value { font-size: 0.86rem; color: #1e293b; font-weight: 500; }
+
+    /* Lab table */
+    .lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .lab-table th {
+      background: #f8fafc;
+      padding: 7px 14px;
+      text-align: left;
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #94a3b8;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 700;
+    }
+
+    .lab-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #374151;
+    }
+
+    .lab-table tr:last-child td { border-bottom: none; }
+    .lab-table tr:hover td { background: #fafafa; }
+
+    .val-anomaly { color: #dc2626; font-weight: 700; }
+    .val-normal  { color: #059669; font-weight: 600; }
+
+    .flag-anomaly {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #dc2626;
+      background: #fef2f2;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    .flag-normal {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.72rem;
+      color: #059669;
+    }
+
+    /* Imaging */
+    .imaging-report {
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .imaging-report:last-child { margin-bottom: 0; }
+    .imaging-report.crit-img { border-color: #fca5a5; }
+
+    .imaging-report-header {
+      background: #f8fafc;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #374151;
+    }
+
+    .imaging-report.crit-img .imaging-report-header {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .img-date { font-size: 0.74rem; color: #94a3b8; font-weight: 400; margin-left: auto; }
+
+    .badge-crit { background: #fee2e2; color: #991b1b; font-size: 0.67rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+    .badge-ok   { background: #dcfce7; color: #166534; font-size: 0.67rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+
+    .imaging-body { padding: 10px 14px; }
+    .img-findings   { font-size: 0.81rem; color: #475569; line-height: 1.55; margin-bottom: 7px; }
+    .img-conclusion { font-size: 0.82rem; font-weight: 600; color: #1e293b; }
+
+    /* Medical history */
+    .hist-item {
+      padding: 9px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .hist-item:last-child { border-bottom: none; }
+    .hist-name { font-size: 0.84rem; font-weight: 500; color: #1e293b; }
+    .hist-meta { font-size: 0.73rem; color: #94a3b8; margin-top: 2px; }
+    .hist-active   { color: #059669; font-weight: 600; }
+    .hist-resolved { color: #94a3b8; }
+
+    /* Allergies */
+    .allergy-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .allergy-item:last-child { border-bottom: none; }
+    .allergy-name { font-size: 0.83rem; color: #374151; }
+
+    .sev-pill {
+      font-size: 0.67rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .sev-severe   { background: #fee2e2; color: #991b1b; }
+    .sev-moderate { background: #fef3c7; color: #92400e; }
+    .sev-mild     { background: #f0fdf4; color: #166534; }
+
+    /* Prescriptions */
+    .rx-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      padding: 11px 14px;
+      margin-bottom: 8px;
+    }
+
+    .rx-card:last-child { margin-bottom: 0; }
+    .rx-name  { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+    .rx-dose  { font-size: 0.81rem; color: #374151; margin-top: 4px; }
+    .rx-meta  { font-size: 0.73rem; color: #94a3b8; margin-top: 4px; }
+
+    /* UC-4 prescription form */
+    .rx-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .rx-form-group label {
+      font-size: 0.73rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .rx-form-group input {
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.83rem;
+      width: 100%;
+    }
+
+    .rx-form-group input:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+    }
+
+    .rx-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    /* Success banner for newly created prescription */
+    .rx-created-banner {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    /* Pending (UC-3 in progress) */
+    .pending-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .big-spinner {
+      width: 38px; height: 38px;
+      border: 3px solid #bfdbfe;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin .9s linear infinite;
+      margin: 0 auto 14px;
+    }
+
+    .pending-title { font-size: 0.95rem; font-weight: 600; color: #1d4ed8; margin-bottom: 6px; }
+    .pending-sub   { font-size: 0.82rem; color: #3b82f6; }
+    .pending-hint  { font-size: 0.76rem; color: #93c5fd; margin-top: 8px; }
+
+    /* Error card */
+    .error-card {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 0.84rem;
+      color: #991b1b;
+      line-height: 1.5;
+    }
+
+    /* Empty state */
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      gap: 10px;
+    }
+
+    .empty-state svg { opacity: .35; }
+    .empty-state p { font-size: 0.88rem; margin: 0; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>HealthSOA Client</h1>
-  <span>Gateway: http://localhost:9000</span>
+  <h1>HealthSOA Clinical Workstation</h1>
+  <span class="tagline">Service-Oriented Healthcare Platform</span>
 </header>
 
 <div class="layout">
@@ -253,76 +574,106 @@
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
 
-    <div class="section-title">Paziente</div>
+    <div class="section-label">Patient</div>
     <div class="patient-row">
-      <input id="patientId" type="text" placeholder="Patient ID  (es. P001)" value="P001" />
+      <input id="patientId" type="text" placeholder="Patient ID" value="1" />
     </div>
 
-    <!-- UC-1 -->
-    <div class="section-title">Use Case</div>
+    <div class="section-label">Clinical Actions</div>
 
+    <!-- UC-1 -->
     <div class="uc-card">
       <div class="uc-header">
-        <span class="uc-badge">UC-1</span>
-        <span class="uc-name">Valutazione Idoneità</span>
+        <span class="uc-badge badge-blue">Assessment</span>
+        <span class="uc-name">Fitness Evaluation</span>
       </div>
       <div class="uc-body">
-        <p class="uc-desc">
-          Invoca il Care Coordinator che, in parallelo, chiama Clinical Aggregator
-          e Diagnostic Aggregator, quindi applica la logica di rischio (§6).
-        </p>
-        <button class="btn btn-primary" onclick="runUC1()">Esegui valutazione</button>
+        <p class="uc-desc">Complete clinical fitness assessment combining diagnostic results and medical history, with automated risk analysis.</p>
+        <button class="btn btn-primary" onclick="runUC1()">Run Assessment</button>
       </div>
     </div>
 
     <!-- UC-2 -->
     <div class="uc-card">
       <div class="uc-header">
-        <span class="uc-badge">UC-2</span>
-        <span class="uc-name">Storico Clinico</span>
+        <span class="uc-badge badge-amber">Profile</span>
+        <span class="uc-name">Clinical Profile</span>
       </div>
       <div class="uc-body">
-        <p class="uc-desc">
-          Recupera il profilo clinico completo dal Clinical Aggregator:
-          anagrafica (SOAP → Anagrafe), allergie e prescrizioni attive (Farmacia).
-        </p>
-        <button class="btn btn-amber" onclick="runUC2()">Consulta profilo</button>
+        <p class="uc-desc">Patient demographics, medical history, known allergies, and active prescriptions.</p>
+        <button class="btn btn-amber" onclick="runUC2()">Load Profile</button>
       </div>
     </div>
 
     <!-- UC-3 -->
     <div class="uc-card">
       <div class="uc-header">
-        <span class="uc-badge">UC-3</span>
-        <span class="uc-name">Richiesta Esami</span>
+        <span class="uc-badge badge-emerald">Lab</span>
+        <span class="uc-name">Order Diagnostic Panel</span>
       </div>
       <div class="uc-body">
-        <p class="uc-desc">
-          Ordina un pannello diagnostico al Diagnostic Aggregator.
-          Avvia il polling visibile ogni 3 s finché lo stato diventa COMPLETED.
-        </p>
-        <label>Pannello</label>
+        <p class="uc-desc">Submit a laboratory panel and monitor results as they become available.</p>
+        <label>Diagnostic Panel</label>
         <select id="panelCode">
-          <option value="PANEL_RENAL">PANEL_RENAL — Funzionalità renale</option>
-          <option value="PANEL_METABOLIC">PANEL_METABOLIC — Metabolismo</option>
-          <option value="PANEL_CBC">PANEL_CBC — Emocromo completo</option>
+          <option value="PANEL_RENAL">Renal Panel — Kidney function</option>
+          <option value="PANEL_METABOLIC">Metabolic Panel — Metabolic profile</option>
+          <option value="PANEL_CBC">CBC Panel — Complete blood count</option>
         </select>
-        <button class="btn btn-emerald" onclick="runUC3()">Ordina &amp; monitora</button>
+        <button class="btn btn-emerald" onclick="runUC3()">Submit Order</button>
       </div>
     </div>
 
     <!-- UC-4 -->
     <div class="uc-card">
       <div class="uc-header">
-        <span class="uc-badge">UC-4</span>
-        <span class="uc-name">Prescrizioni Farmacia</span>
+        <span class="uc-badge badge-violet">Pharmacy</span>
+        <span class="uc-name">New Prescription</span>
       </div>
       <div class="uc-body">
-        <p class="uc-desc">
-          Recupera le prescrizioni farmacologiche attive direttamente
-          dal Farmacia Service (senza passare dagli aggregatori).
-        </p>
-        <button class="btn btn-violet" onclick="runUC4()">Verifica prescrizioni</button>
+        <p class="uc-desc">Register a new prescription directly on the pharmacy system, without involving any intermediate prosumer.</p>
+
+        <div class="rx-form-group">
+          <label for="uc4PatientId">Patient ID</label>
+          <input id="uc4PatientId" type="text" placeholder="e.g. 1" value="1" />
+        </div>
+
+        <div class="rx-form-group">
+          <label for="uc4Drug">Drug (generic name)</label>
+          <input id="uc4Drug" type="text" placeholder="e.g. Amoxicillin" />
+        </div>
+
+        <div class="rx-form-group">
+          <label for="uc4Atc">ATC Code</label>
+          <input id="uc4Atc" type="text" placeholder="e.g. J01CA04" />
+        </div>
+
+        <div class="rx-form-grid">
+          <div class="rx-form-group">
+            <label for="uc4Dosage">Dosage</label>
+            <input id="uc4Dosage" type="text" placeholder="e.g. 500mg" />
+          </div>
+          <div class="rx-form-group">
+            <label for="uc4Freq">Frequency</label>
+            <input id="uc4Freq" type="text" placeholder="e.g. every 8h" />
+          </div>
+        </div>
+
+        <div class="rx-form-group">
+          <label for="uc4Start">Start date</label>
+          <input id="uc4Start" type="date" style="width:100%" />
+        </div>
+
+        <div class="rx-form-group">
+          <label for="uc4End">Expected end date</label>
+          <input id="uc4End" type="date" style="width:100%" />
+        </div>
+
+        <div class="rx-form-group">
+          <label for="uc4Doctor">Prescribing physician</label>
+          <input id="uc4Doctor" type="text" placeholder="e.g. Dr. Smith" />
+        </div>
+
+        <button class="btn btn-violet" onclick="runUC4()">Add Prescription</button>
       </div>
     </div>
 
@@ -331,12 +682,19 @@
   <!-- ── Output Panel ── -->
   <div class="output-panel">
     <div class="output-toolbar">
-      <span id="outputTitle">— nessuna richiesta effettuata —</span>
-      <button class="btn-sm" onclick="clearOutput()">Pulisci</button>
+      <span class="ot-title" id="outputTitle">Select a clinical action from the left panel</span>
+      <button class="btn-sm" onclick="clearOutput()">Clear</button>
     </div>
-    <div id="statusBar" class="status-bar idle">Pronto.</div>
+    <div id="statusBar" class="status-bar idle">Ready.</div>
     <div id="pollLog" class="poll-log" style="display:none"></div>
-    <pre id="outputPre" class="output-pre"></pre>
+    <div id="outputArea" class="output-area">
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p>No data loaded — select a patient and a clinical action</p>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -344,11 +702,17 @@
 <script>
   const GW = 'http://localhost:9000';
 
-  // ── helpers ──────────────────────────────────────────────────────────────
+  const PANEL_LABELS = {
+    PANEL_RENAL:    'Renal Panel',
+    PANEL_METABOLIC:'Metabolic Panel',
+    PANEL_CBC:      'CBC Panel'
+  };
+
+  // ── Utilities ──────────────────────────────────────────────────────────────
 
   function pid() {
     const v = document.getElementById('patientId').value.trim();
-    if (!v) { setStatus('Inserisci un Patient ID.', 'error'); return null; }
+    if (!v) { setStatus('Please enter a patient ID before proceeding.', 'error'); return null; }
     return v;
   }
 
@@ -357,31 +721,26 @@
   function setStatus(msg, type = 'idle', spinning = false) {
     const el = document.getElementById('statusBar');
     el.className = 'status-bar ' + type;
-    el.innerHTML = (spinning ? '<span class="spinner"></span> ' : '') + escHtml(msg);
+    el.innerHTML = (spinning ? '<span class="spinner"></span> ' : '') + esc(msg);
   }
 
-  function showOutput(data) {
-    document.getElementById('outputPre').innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
-  }
-
-  function showRaw(text) {
-    document.getElementById('outputPre').textContent = text;
+  function renderArea(html) {
+    document.getElementById('outputArea').innerHTML = html;
   }
 
   function clearOutput() {
-    document.getElementById('outputPre').innerHTML = '';
+    renderArea('<div class="empty-state"><p>No data loaded — select a patient and a clinical action</p></div>');
     document.getElementById('pollLog').style.display = 'none';
     document.getElementById('pollLog').innerHTML = '';
-    setTitle('— nessuna richiesta effettuata —');
-    setStatus('Pronto.');
+    setTitle('Select a clinical action from the left panel');
+    setStatus('Ready.');
   }
 
-  function pollLog(msg, cls = '') {
+  function pollLog(msg, type = 'wait') {
     const el = document.getElementById('pollLog');
     el.style.display = 'block';
     const p = document.createElement('p');
-    p.className = cls;
-    p.textContent = msg;
+    p.innerHTML = `<span class="dot dot-${type}"></span>${esc(msg)}`;
     el.appendChild(p);
     el.scrollTop = el.scrollHeight;
   }
@@ -392,27 +751,9 @@
     el.innerHTML = '';
   }
 
-  function escHtml(s) {
-    return String(s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  function syntaxHighlight(json) {
-    json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return json.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-      function(match) {
-        let cls = 'json-num';
-        if (/^"/.test(match)) {
-          cls = /:$/.test(match) ? 'json-key' : 'json-str';
-        } else if (/true|false/.test(match)) {
-          cls = 'json-bool';
-        } else if (/null/.test(match)) {
-          cls = 'json-null';
-        }
-        return '<span class="' + cls + '">' + match + '</span>';
-      }
-    );
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   async function apiFetch(url, opts = {}) {
@@ -431,20 +772,315 @@
     document.querySelectorAll('.btn').forEach(b => b.disabled = flag);
   }
 
-  // ── UC-1: Valutazione Idoneità ───────────────────────────────────────────
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ── Render: Lab result ─────────────────────────────────────────────────────
+
+  function renderLabResult(lab) {
+    if (!lab) return '';
+    const title = PANEL_LABELS[lab.examCode] || 'Laboratory Results';
+    const measurements = lab.measurements || [];
+
+    const rows = measurements.map(m => `
+      <tr>
+        <td>${esc(m.parameter)}</td>
+        <td class="${m.anomalyFlag ? 'val-anomaly' : 'val-normal'}">${esc(m.value)}</td>
+        <td style="color:#64748b">${esc(m.unit)}</td>
+        <td style="color:#94a3b8;font-size:0.78rem">${esc(m.referenceRange)}</td>
+        <td>${m.anomalyFlag
+          ? '<span class="flag-anomaly">⚠ Outside range</span>'
+          : '<span class="flag-normal">✓ Within range</span>'}</td>
+      </tr>`).join('');
+
+    return `
+      <div class="clinical-card">
+        <div class="card-header">${esc(title)}</div>
+        <div class="card-body-flush">
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>Test</th><th>Result</th><th>Unit</th>
+                <th>Reference Range</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  // ── Render: Imaging reports ────────────────────────────────────────────────
+
+  function renderImagingReports(reports) {
+    if (!reports || reports.length === 0) return '';
+
+    const items = reports.map(r => `
+      <div class="imaging-report ${r.criticalFlag ? 'crit-img' : ''}">
+        <div class="imaging-report-header">
+          ${esc(PANEL_LABELS[r.examType] || r.examType || 'Imaging Study')}
+          <span class="img-date">${esc(r.reportDate || '')}</span>
+          <span class="${r.criticalFlag ? 'badge-crit' : 'badge-ok'}">
+            ${r.criticalFlag ? 'Critical Finding' : 'No Critical Findings'}
+          </span>
+        </div>
+        <div class="imaging-body">
+          <div class="img-findings">${esc(r.findings || '')}</div>
+          <div class="img-conclusion">Conclusion: ${esc(r.conclusion || '')}</div>
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="clinical-card">
+        <div class="card-header">Imaging Reports (${reports.length})</div>
+        <div class="card-body">${items}</div>
+      </div>`;
+  }
+
+  // ── Render: Prescriptions ──────────────────────────────────────────────────
+
+  function renderPrescriptions(rxs) {
+    if (!rxs || rxs.length === 0) {
+      return `<div class="clinical-card">
+        <div class="card-body" style="color:#64748b;font-size:0.84rem">No active prescriptions on record.</div>
+      </div>`;
+    }
+
+    const items = rxs.map(rx => `
+      <div class="rx-card">
+        <div class="rx-name">${esc(rx.drugName)}</div>
+        <div class="rx-dose">${esc(rx.dosage)} &nbsp;·&nbsp; ${esc(rx.frequency)}</div>
+        <div class="rx-meta">
+          ${esc(rx.startDate || '—')} → ${esc(rx.expectedEndDate || '—')}
+          &nbsp;·&nbsp; Prescribed by ${esc(rx.prescribingDoctor || '—')}
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="clinical-card">
+        <div class="card-header">Active Prescriptions (${rxs.length})</div>
+        <div class="card-body">${items}</div>
+      </div>`;
+  }
+
+  // ── Render: UC-1 Fitness Assessment ───────────────────────────────────────
+
+  function renderUC1(data) {
+    const outcome = (data.outcome || 'UNKNOWN').toUpperCase();
+    const outcomeMap = {
+      IDONEO:      { cls: 'outcome-fit',      icon: '✅', label: 'Fit for Activity' },
+      CON_RISERVA: { cls: 'outcome-reserved', icon: '⚠️', label: 'Conditional Fitness' },
+      NON_IDONEO:  { cls: 'outcome-unfit',    icon: '🚫', label: 'Not Fit' }
+    };
+    const oc = outcomeMap[outcome] || { cls: 'outcome-reserved', icon: '❓', label: outcome };
+
+    const riskFlags = data.riskFlags || [];
+
+    let html = `
+      <div class="outcome-banner ${oc.cls}">
+        <div class="outcome-icon">${oc.icon}</div>
+        <div>
+          <div class="outcome-label">${oc.label}</div>
+          <div class="outcome-sub">${riskFlags.length} risk flag(s) identified</div>
+        </div>
+      </div>`;
+
+    // Risk flags
+    if (riskFlags.length > 0) {
+      const flagItems = riskFlags.map(f => {
+        const lvl = (f.level || 'INFO').toLowerCase();
+        const cls = lvl === 'critical' ? 'lvl-critical' : lvl === 'warning' ? 'lvl-warning' : 'lvl-info';
+        const desc = f.description || f.message || f.category || '';
+        return `
+          <div class="risk-flag ${cls}">
+            <span class="flag-pill">${esc((f.level || 'INFO').toUpperCase())}</span>
+            <span class="flag-text">${esc(desc)}</span>
+          </div>`;
+      }).join('');
+
+      html += `
+        <div class="clinical-card">
+          <div class="card-header">Risk Flags</div>
+          <div class="card-body">${flagItems}</div>
+        </div>`;
+    } else {
+      html += `
+        <div class="clinical-card">
+          <div class="card-body" style="color:#059669;font-size:0.84rem">✓ No risk flags detected.</div>
+        </div>`;
+    }
+
+    // Diagnostic data
+    const bundle = data.diagnosticBundle || data;
+    if (bundle.labResult) html += renderLabResult(bundle.labResult);
+    if (bundle.imagingReports && bundle.imagingReports.length > 0) {
+      html += renderImagingReports(bundle.imagingReports);
+    }
+
+    // Clinical profile summary (allergies from UC-1 bundle)
+    const profile = data.clinicalProfile;
+    if (profile) {
+      if (profile.allergies && profile.allergies.length > 0) {
+        const alItems = profile.allergies.map(a => {
+          const sev = (a.severity || '').toUpperCase();
+          const cls = sev === 'SEVERE' ? 'sev-severe' : sev === 'MODERATE' ? 'sev-moderate' : 'sev-mild';
+          return `<div class="allergy-item">
+            <span class="sev-pill ${cls}">${esc(a.severity || '')}</span>
+            <span class="allergy-name">${esc(a.allergen || '')}</span>
+          </div>`;
+        }).join('');
+
+        html += `
+          <div class="clinical-card">
+            <div class="card-header">Known Allergies</div>
+            <div class="card-body">${alItems}</div>
+          </div>`;
+      }
+
+      if (profile.activePrescriptions && profile.activePrescriptions.length > 0) {
+        html += renderPrescriptions(profile.activePrescriptions);
+      }
+    }
+
+    renderArea(html);
+  }
+
+  // ── Render: UC-2 Clinical Profile ─────────────────────────────────────────
+
+  function renderUC2(data) {
+    let html = '';
+
+    if (data.patient) {
+      const p = data.patient;
+      const genderMap = { M: 'Male', F: 'Female' };
+      html += `
+        <div class="clinical-card">
+          <div class="card-header">Patient Demographics</div>
+          <div class="card-body">
+            <div class="data-grid">
+              <div class="data-field">
+                <span class="data-label">Full Name</span>
+                <span class="data-value">${esc((p.firstName || '') + ' ' + (p.lastName || ''))}</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Date of Birth</span>
+                <span class="data-value">${esc(p.dateOfBirth || '—')}</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Gender</span>
+                <span class="data-value">${esc(genderMap[p.gender] || p.gender || '—')}</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Blood Type</span>
+                <span class="data-value">${esc(p.bloodType || '—')}</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Phone</span>
+                <span class="data-value">${esc(p.phone || '—')}</span>
+              </div>
+              <div class="data-field">
+                <span class="data-label">Fiscal Code</span>
+                <span class="data-value">${esc(p.fiscalCode || '—')}</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    if (data.medicalHistory && data.medicalHistory.length > 0) {
+      const items = data.medicalHistory.map(h => {
+        const active = (h.status || '').toUpperCase() === 'ACTIVE';
+        return `<div class="hist-item">
+          <div class="hist-name">${esc(h.description || '')}</div>
+          <div class="hist-meta">
+            Diagnosed: ${esc(h.diagnosisDate || '—')} &nbsp;·&nbsp;
+            <span class="${active ? 'hist-active' : 'hist-resolved'}">${esc(h.status || '')}</span>
+          </div>
+        </div>`;
+      }).join('');
+
+      html += `
+        <div class="clinical-card">
+          <div class="card-header">Medical History</div>
+          <div class="card-body">${items}</div>
+        </div>`;
+    }
+
+    if (data.allergies && data.allergies.length > 0) {
+      const items = data.allergies.map(a => {
+        const sev = (a.severity || '').toUpperCase();
+        const cls = sev === 'SEVERE' ? 'sev-severe' : sev === 'MODERATE' ? 'sev-moderate' : 'sev-mild';
+        return `<div class="allergy-item">
+          <span class="sev-pill ${cls}">${esc(a.severity || '')}</span>
+          <span class="allergy-name">${esc(a.allergen || '')}</span>
+        </div>`;
+      }).join('');
+
+      html += `
+        <div class="clinical-card">
+          <div class="card-header">Known Allergies</div>
+          <div class="card-body">${items}</div>
+        </div>`;
+    }
+
+    if (data.activePrescriptions && data.activePrescriptions.length > 0) {
+      html += renderPrescriptions(data.activePrescriptions);
+    }
+
+    renderArea(html);
+  }
+
+  // ── Render: UC-3 Diagnostic Bundle ────────────────────────────────────────
+
+  function renderUC3(data) {
+    let html = '';
+    if (data.labResult)    html += renderLabResult(data.labResult);
+    if (data.imagingReports && data.imagingReports.length > 0) {
+      html += renderImagingReports(data.imagingReports);
+    }
+    renderArea(html);
+  }
+
+  // ── Status message from lab status code ───────────────────────────────────
+
+  function statusMsg(st) {
+    switch ((st || '').toUpperCase()) {
+      case 'PENDING':    return 'Order received — waiting for the laboratory to begin analysis...';
+      case 'PROCESSING': return 'Analysis in progress, please wait...';
+      case 'COMPLETED':  return 'Analysis complete.';
+      case 'ERROR':      return 'An error occurred during laboratory analysis.';
+      default:           return 'Monitoring order status...';
+    }
+  }
+
+  function showPending(panelLabel, attempt, max) {
+    renderArea(`
+      <div class="pending-card">
+        <div class="big-spinner"></div>
+        <div class="pending-title">${esc(panelLabel)} in Progress</div>
+        <div class="pending-sub">The laboratory is processing the sample.<br>Results will appear here automatically when ready.</div>
+        ${attempt > 0 ? `<div class="pending-hint">Check ${attempt} of ${max}</div>` : ''}
+      </div>`);
+  }
+
+  // ── UC-1 ──────────────────────────────────────────────────────────────────
 
   async function runUC1() {
     const p = pid(); if (!p) return;
-    setTitle('UC-1 · Valutazione Idoneità — ' + p);
+    setTitle('Fitness Assessment — Patient ' + p);
     clearPollLog();
-    setStatus('Invocazione Care Coordinator…', 'loading', true);
+    setStatus('Contacting clinical services, please wait...', 'loading', true);
     disableAll(true);
     try {
       const result = await apiFetch(`${GW}/api/coordinator/patients/${p}/fitness-assessment`);
-      showOutput(result);
-      const outcome = result.outcome || '?';
+      renderUC1(result);
+      const outcome = (result.outcome || '').toUpperCase();
+      const outcomeTxt = outcome === 'IDONEO' ? 'Fit for activity'
+                       : outcome === 'CON_RISERVA' ? 'Conditional fitness'
+                       : outcome === 'NON_IDONEO' ? 'Not fit'
+                       : outcome;
+      const flags = (result.riskFlags || []).length;
       const color = outcome === 'IDONEO' ? 'success' : outcome === 'CON_RISERVA' ? 'loading' : 'error';
-      setStatus('Esito: ' + outcome + ' · ' + (result.riskFlags?.length ?? 0) + ' flag', color);
+      setStatus(`Assessment complete — ${outcomeTxt} — ${flags} risk flag(s)`, color);
     } catch (e) {
       handleError(e);
     } finally {
@@ -452,20 +1088,20 @@
     }
   }
 
-  // ── UC-2: Storico Clinico ────────────────────────────────────────────────
+  // ── UC-2 ──────────────────────────────────────────────────────────────────
 
   async function runUC2() {
     const p = pid(); if (!p) return;
-    setTitle('UC-2 · Storico Clinico — ' + p);
+    setTitle('Clinical Profile — Patient ' + p);
     clearPollLog();
-    setStatus('Recupero profilo clinico…', 'loading', true);
+    setStatus('Retrieving clinical profile...', 'loading', true);
     disableAll(true);
     try {
       const result = await apiFetch(`${GW}/api/clinical/patients/${p}/profile`);
-      showOutput(result);
-      const rxCount = result.activePrescriptions?.length ?? 0;
-      const alCount = result.allergies?.length ?? 0;
-      setStatus(`Profilo ricevuto · ${rxCount} prescrizioni · ${alCount} allergie`, 'success');
+      renderUC2(result);
+      const rxCount = (result.activePrescriptions || []).length;
+      const alCount = (result.allergies || []).length;
+      setStatus(`Profile loaded — ${rxCount} active prescription(s) · ${alCount} known allergy/allergies`, 'success');
     } catch (e) {
       handleError(e);
     } finally {
@@ -473,30 +1109,29 @@
     }
   }
 
-  // ── UC-3: Richiesta Esami con polling ────────────────────────────────────
+  // ── UC-3 ──────────────────────────────────────────────────────────────────
 
   let uc3Polling = false;
 
   async function runUC3() {
     const p = pid(); if (!p) return;
     const panel = document.getElementById('panelCode').value;
-    setTitle('UC-3 · Richiesta Esami (' + panel + ') — ' + p);
+    const panelLabel = PANEL_LABELS[panel] || panel;
+    setTitle(panelLabel + ' — Patient ' + p);
     clearPollLog();
-    setStatus('Ordine diagnostico in corso…', 'loading', true);
+    setStatus('Submitting diagnostic order...', 'loading', true);
     disableAll(true);
 
     try {
-      // 1. Ordina
       const orderResp = await apiFetch(
         `${GW}/api/diagnostic/patients/${p}/diagnostics`,
         { method: 'POST', body: JSON.stringify({ panelCode: panel }) }
       );
       const trackingId = orderResp.trackingId;
-      pollLog(`[ORDER] trackingId = ${trackingId}`, 'ok');
-      showOutput(orderResp);
-      setStatus(`Polling su trackingId ${trackingId}…`, 'loading', true);
+      pollLog('Order submitted — monitoring results...', 'ok');
+      showPending(panelLabel, 0, 30);
+      setStatus('Analysis submitted — monitoring progress...', 'loading', true);
 
-      // 2. Polling ogni 3s, max 30 tentativi (~90s)
       uc3Polling = true;
       let attempts = 0;
       const MAX = 30;
@@ -506,23 +1141,34 @@
         attempts++;
         try {
           const status = await apiFetch(`${GW}/api/diagnostic/tracking/${trackingId}/status`);
-          const st = status.status || 'UNKNOWN';
-          pollLog(`[${String(attempts).padStart(2,'0')}] status = ${st}`, st === 'COMPLETED' ? 'ok' : 'wait');
+          const st = (status.status || 'UNKNOWN').toUpperCase();
+          const msg = statusMsg(st);
+
           if (st === 'COMPLETED') {
-            // 3. Preleva il risultato
+            pollLog(msg, 'ok');
             const result = await apiFetch(`${GW}/api/diagnostic/tracking/${trackingId}/result`);
-            showOutput(result);
-            setStatus(`Esame completato dopo ${attempts * 3}s.`, 'success');
+            renderUC3(result);
+            setStatus(`Results ready — ${panelLabel} completed.`, 'success');
             uc3Polling = false;
             break;
+          } else if (st === 'ERROR') {
+            pollLog(msg, 'err');
+            setStatus('Laboratory analysis encountered an error.', 'error');
+            renderArea(`<div class="error-card">The laboratory reported an error while processing this order. Please contact the laboratory or try again.</div>`);
+            uc3Polling = false;
+            break;
+          } else {
+            pollLog(msg, 'wait');
+            showPending(panelLabel, attempts, MAX);
+            setStatus(msg, 'loading', true);
           }
         } catch (pollErr) {
-          pollLog(`[${String(attempts).padStart(2,'0')}] errore polling: ${JSON.stringify(pollErr.body)}`, 'err');
+          pollLog('Temporary connection issue — retrying...', 'wait');
         }
       }
 
       if (uc3Polling) {
-        setStatus('Timeout polling: l\'esame non si è completato entro 90s.', 'error');
+        setStatus('The analysis did not complete within the expected time. Please check back later.', 'error');
         uc3Polling = false;
       }
     } catch (e) {
@@ -532,41 +1178,90 @@
     }
   }
 
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  // ── UC-4: Prescrizioni Farmacia ──────────────────────────────────────────
+  // ── UC-4 — Nuova Prescrizione (diretta client→provider, nessun prosumer) ──
 
   async function runUC4() {
-    const p = pid(); if (!p) return;
-    setTitle('UC-4 · Prescrizioni Farmacia — ' + p);
+    const p = document.getElementById('uc4PatientId').value.trim();
+    if (!p) { setStatus('Please enter a patient ID before proceeding.', 'error'); return; }
+
+    const drugName        = document.getElementById('uc4Drug').value.trim();
+    const atcCode         = document.getElementById('uc4Atc').value.trim();
+    const dosage          = document.getElementById('uc4Dosage').value.trim();
+    const frequency       = document.getElementById('uc4Freq').value.trim();
+    const startDate       = document.getElementById('uc4Start').value;
+    const expectedEndDate = document.getElementById('uc4End').value;
+    const prescribingDoctor = document.getElementById('uc4Doctor').value.trim();
+
+    if (!drugName || !atcCode || !dosage || !frequency || !startDate || !prescribingDoctor) {
+      setStatus('Please fill in all required fields before submitting.', 'error');
+      renderArea(`<div class="error-card">Required fields missing: drug name, ATC code, dosage, frequency, start date, prescribing physician.</div>`);
+      return;
+    }
+
+    setTitle('New Prescription — Patient ' + p);
     clearPollLog();
-    setStatus('Recupero prescrizioni farmacologiche…', 'loading', true);
+    setStatus('Sending prescription to the pharmacy system...', 'loading', true);
     disableAll(true);
+
+    const body = { drugName, atcCode, dosage, frequency, startDate,
+                   prescribingDoctor,
+                   ...(expectedEndDate ? { expectedEndDate } : {}) };
+
     try {
-      const result = await apiFetch(`${GW}/api/pharmacy/patients/${p}/prescriptions`);
-      showOutput(result);
-      const n = Array.isArray(result) ? result.length : '?';
-      setStatus(`${n} prescrizione/i attiva/e trovata/e.`, 'success');
+      const rx = await apiFetch(
+        `${GW}/api/pharmacy/patients/${p}/prescriptions`,
+        { method: 'POST', body: JSON.stringify(body) }
+      );
+      renderArea(renderCreatedPrescription(rx));
+      setStatus('Prescription registered successfully.', 'success');
     } catch (e) {
-      handleError(e);
+      if (e && e.status === 400 && e.body && typeof e.body === 'object') {
+        const msgs = Object.entries(e.body).map(([k, v]) => `${k}: ${v}`).join(' · ');
+        setStatus('Invalid data — please check the form fields.', 'error');
+        renderArea(`<div class="error-card">Validation error: ${esc(msgs)}</div>`);
+      } else {
+        handleError(e);
+      }
     } finally {
       disableAll(false);
     }
   }
 
-  // ── error handler ────────────────────────────────────────────────────────
+  function renderCreatedPrescription(rx) {
+    return `
+      <div class="rx-created-banner">✓ Prescription registered successfully (ID: ${esc(String(rx.id ?? '—'))})</div>
+      <div class="clinical-card">
+        <div class="card-header">New Prescription</div>
+        <div class="card-body">
+          <div class="rx-card" style="margin-bottom:0">
+            <div class="rx-name">${esc(rx.drugName)}</div>
+            <div class="rx-dose">${esc(rx.dosage)} &nbsp;·&nbsp; ${esc(rx.frequency)}</div>
+            <div class="rx-meta" style="margin-top:6px">
+              <span style="color:#374151">ATC Code:</span> ${esc(rx.atcCode || '—')}
+            </div>
+            <div class="rx-meta">
+              Start: ${esc(rx.startDate || '—')} &nbsp;→&nbsp; Expected end: ${esc(rx.expectedEndDate || '—')}
+            </div>
+            <div class="rx-meta">
+              Prescribed by: ${esc(rx.prescribingDoctor || '—')}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Error handler ─────────────────────────────────────────────────────────
 
   function handleError(e) {
     if (e && e.status) {
-      const msg = `HTTP ${e.status}`;
-      setStatus(msg, 'error');
-      showOutput(e.body ?? { error: msg });
+      setStatus('The request could not be completed. Please verify the patient ID and try again.', 'error');
+      renderArea(`<div class="error-card">The service returned an unexpected response. Please check that the patient exists and that all services are operational.</div>`);
     } else if (e instanceof TypeError && e.message.includes('fetch')) {
-      setStatus('Impossibile raggiungere il Gateway su http://localhost:9000. Verificare che i servizi siano avviati.', 'error');
-      showRaw('Network error: ' + e.message);
+      setStatus('Unable to connect to clinical services. Please verify that the system is operational.', 'error');
+      renderArea(`<div class="error-card">Could not reach the clinical services. Please ensure the platform is running and try again.</div>`);
     } else {
-      setStatus('Errore imprevisto: ' + String(e), 'error');
-      console.error(e);
+      setStatus('An unexpected error occurred.', 'error');
+      renderArea(`<div class="error-card">An unexpected error occurred. Please try again or contact technical support.</div>`);
     }
   }
 </script>

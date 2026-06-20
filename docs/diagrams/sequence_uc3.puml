@@ -1,0 +1,73 @@
+@startuml sequence_uc3
+
+title UC-3 — Richiesta esami e monitoraggio
+
+skinparam sequence {
+    ArrowColor #534AB7
+    ActorBorderColor #534AB7
+    LifeLineBorderColor #888780
+    LifeLineBackgroundColor #F1EFE8
+    ParticipantBorderColor #534AB7
+    ParticipantBackgroundColor #EEEDFE
+    ParticipantFontColor #3C3489
+    BoxBorderColor #B4B2A9
+    BoxBackgroundColor #F1EFE8
+}
+
+skinparam note {
+    BackgroundColor #FAEEDA
+    BorderColor #BA7517
+    FontColor #633806
+}
+
+actor "Medico" as Client
+
+box "Infrastruttura" #F1EFE8
+    participant "API Gateway\n:9000" as GW
+end box
+
+box "Prosumer" #EEEDFE
+    participant "Diagnostic Aggregator\n:9201" as DA
+end box
+
+box "Provider" #E1F5EE
+    participant "Laboratorio\n:9102" as LAB
+    participant "Imaging\n:9104" as IMG
+end box
+
+== Order submission ==
+
+Client -> GW  : POST /api/diagnostic/patients/{patientId}/diagnostics\n{ panelCode }
+GW     -> DA  : POST /patients/{patientId}/diagnostics
+DA     -> LAB : POST /tests/orders\n{ patientId, panelCode, callbackUrl }
+LAB   --> DA  : 202 Accepted · { orderId }
+DA     -> IMG : GET /patients/{patientId}/reports?examType={panelCode}
+IMG   --> DA  : List<ImagingReport>
+DA    --> GW  : 202 Accepted · { trackingId }
+GW    --> Client : 202 Accepted · { trackingId }
+
+== Async lab processing (background) ==
+
+activate LAB
+LAB -> LAB : process sample\n[@Async]
+LAB -> DA  : POST /internal/callback/{trackingId}\n{ List<TestResult> }
+DA --> LAB : 200 OK
+deactivate LAB
+
+== Client polling ==
+
+loop until status = COMPLETED
+    Client -> GW : GET /api/diagnostic/tracking/{trackingId}/status
+    GW     -> DA : GET /tracking/{trackingId}/status
+    DA    --> GW : { status: "PROCESSING" }
+    GW    --> Client : { status: "PROCESSING" }
+end
+
+== Result retrieval ==
+
+Client -> GW : GET /api/diagnostic/tracking/{trackingId}/result
+GW     -> DA : GET /tracking/{trackingId}/result
+DA    --> GW : DiagnosticBundle
+GW    --> Client : 200 OK · DiagnosticBundle
+
+@enduml

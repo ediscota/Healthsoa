@@ -1,0 +1,69 @@
+@startuml sequence_uc1
+
+title UC-1 — Valutazione clinica completa
+
+skinparam sequence {
+    ArrowColor #534AB7
+    ActorBorderColor #534AB7
+    LifeLineBorderColor #888780
+    LifeLineBackgroundColor #F1EFE8
+    ParticipantBorderColor #534AB7
+    ParticipantBackgroundColor #EEEDFE
+    ParticipantFontColor #3C3489
+    BoxBorderColor #B4B2A9
+    BoxBackgroundColor #F1EFE8
+}
+
+actor "Medico" as Client
+
+box "Infrastruttura" #F1EFE8
+    participant "API Gateway\n:9000" as GW
+end box
+
+box "Prosumer" #EEEDFE
+    participant "Care Coordinator\n:9203" as CC
+    participant "Clinical Aggregator\n:9202" as CLA
+    participant "Diagnostic Aggregator\n:9201" as DA
+end box
+
+box "Provider" #E1F5EE
+    participant "Anagrafe\n:9101 (SOAP)" as AN
+    participant "Farmacia\n:9103" as FA
+    participant "Laboratorio\n:9102" as LAB
+    participant "Imaging\n:9104" as IMG
+end box
+
+== Request ==
+
+Client -> GW : GET /api/coordinator/patients/{patientId}/fitness-assessment
+GW     -> CC : GET /patients/{patientId}/fitness-assessment
+
+== Parallel execution ==
+
+par Branch 1 — clinical profile
+    CC  ->> CLA : GET /patients/{patientId}/profile
+    CLA ->  AN  : getPatientById · getMedicalHistory · getAllergies\n[SOAP]
+    AN  --> CLA : PatientData + MedicalHistory + Allergies
+    CLA ->  FA  : GET /patients/{patientId}/prescriptions
+    FA  --> CLA : List<Prescription>
+    CLA --> CC  : ClinicalProfile
+
+else Branch 2 — diagnostic bundle
+    CC  ->> DA  : GET /patients/{patientId}/diagnostics
+    DA  ->  LAB : GET /tests/orders?patientId={id}&status=COMPLETED
+    LAB --> DA  : List<TestResult>
+    DA  ->  IMG : GET /patients/{patientId}/reports
+    IMG --> DA  : List<ImagingReport>
+    DA  --> CC  : DiagnosticBundle
+end
+
+== Synchronization barrier ==
+
+note over CC : CompletableFuture.allOf(diag, clin).join()
+
+== Risk analysis & response ==
+
+CC  --> GW     : FitnessReport · List<RiskFlag>
+GW  --> Client : 200 OK · FitnessReport
+
+@enduml

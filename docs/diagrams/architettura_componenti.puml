@@ -1,0 +1,148 @@
+@startuml architettura_componenti
+title HealthSOA — Diagramma Architetturale a Componenti
+
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+
+' ── Palette colori ──────────────────────────────────────────────
+skinparam component {
+  BackgroundColor<<infra>>    #D0E8FF
+  BorderColor<<infra>>        #2266AA
+  FontColor<<infra>>          #1A3A6A
+
+  BackgroundColor<<provider>> #D5F5D5
+  BorderColor<<provider>>     #228822
+  FontColor<<provider>>       #1A4A1A
+
+  BackgroundColor<<prosumer>> #FFF3CC
+  BorderColor<<prosumer>>     #CC8800
+  FontColor<<prosumer>>       #664400
+
+  BackgroundColor<<client>>   #F0D0FF
+  BorderColor<<client>>       #8833AA
+  FontColor<<client>>         #4A1A66
+}
+
+skinparam database {
+  BackgroundColor            #F5F5F5
+  BorderColor                #888888
+}
+
+' ══════════════════════════════════════════════════════════════════
+' LIVELLO CLIENT
+' ══════════════════════════════════════════════════════════════════
+package "Client" {
+  [Applicazione Web Clinica\n(Browser)] <<client>> as WebClient
+}
+
+' ══════════════════════════════════════════════════════════════════
+' LIVELLO INFRASTRUTTURALE
+' ══════════════════════════════════════════════════════════════════
+package "Infrastruttura" {
+  [API Gateway\n:9000] <<infra>> as Gateway
+  [Discovery Server\n(Eureka) :8761] <<infra>> as Eureka
+  [Config Server\n:8888] <<infra>> as ConfigServer
+}
+
+' ══════════════════════════════════════════════════════════════════
+' LIVELLO PROSUMER
+' ══════════════════════════════════════════════════════════════════
+package "Service Prosumer" {
+  [Care Coordinator\n:9203] <<prosumer>> as CareCoord
+  [Diagnostic Aggregator\n:9201] <<prosumer>> as DiagAgg
+  [Clinical Aggregator\n:9202] <<prosumer>> as ClinAgg
+}
+
+' ══════════════════════════════════════════════════════════════════
+' LIVELLO PROVIDER
+' ══════════════════════════════════════════════════════════════════
+package "Service Provider" {
+  [Anagrafe Service\n(SOAP) :9101] <<provider>> as Anagrafe
+  [Laboratorio Service\n(REST async) :9102] <<provider>> as Lab
+  [Farmacia Service\n(REST) :9103] <<provider>> as Farmacia
+  [Imaging Service\n(REST async) :9104] <<provider>> as Imaging
+}
+
+' ══════════════════════════════════════════════════════════════════
+' DATABASE
+' ══════════════════════════════════════════════════════════════════
+database "MySQL\n:3306" as MySQL
+
+' ══════════════════════════════════════════════════════════════════
+' CONNESSIONI — Client → Gateway
+' ══════════════════════════════════════════════════════════════════
+WebClient --> Gateway : HTTP REST
+
+' ══════════════════════════════════════════════════════════════════
+' CONNESSIONI — Gateway → Prosumer / Provider
+' ══════════════════════════════════════════════════════════════════
+Gateway --> CareCoord  : lb://care-coordinator\n/api/coordinator/**
+Gateway --> ClinAgg    : lb://clinical-aggregator\n/api/clinical/**
+Gateway --> DiagAgg    : lb://diagnostic-aggregator\n/api/diagnostic/**
+Gateway --> Farmacia   : lb://farmacia-service\n/api/pharmacy/**  [UC-4 diretto]
+Gateway --> Anagrafe   : HTTP SOAP\n/soap/anagrafe/**
+
+' ══════════════════════════════════════════════════════════════════
+' CONNESSIONI — Prosumer → Prosumer (Care Coordinator)
+' ══════════════════════════════════════════════════════════════════
+CareCoord --> DiagAgg : REST Feign\n(parallelo)
+CareCoord --> ClinAgg : REST Feign\n(parallelo)
+
+' ══════════════════════════════════════════════════════════════════
+' CONNESSIONI — Prosumer → Provider
+' ══════════════════════════════════════════════════════════════════
+DiagAgg --> Lab     : REST Feign\nPOST /tests/orders  (async)
+DiagAgg --> Imaging : REST Feign\nGET /patients/{id}/reports  (async)
+
+ClinAgg --> Anagrafe : SOAP\ngetPatientById / getMedicalHistory / getAllergies
+ClinAgg --> Farmacia : REST Feign\nGET /patients/{id}/prescriptions
+
+' ══════════════════════════════════════════════════════════════════
+' CALLBACK asincrona Laboratorio → Diagnostic Aggregator
+' ══════════════════════════════════════════════════════════════════
+Lab ..> DiagAgg : callback HTTP\n(webhook - esito pronto)
+
+' ══════════════════════════════════════════════════════════════════
+' CONNESSIONI — Infrastruttura
+' ══════════════════════════════════════════════════════════════════
+Anagrafe  ..> Eureka     : registrazione\n@EnableDiscoveryClient
+Lab       ..> Eureka     : registrazione
+Farmacia  ..> Eureka     : registrazione
+Imaging   ..> Eureka     : registrazione
+DiagAgg   ..> Eureka     : registrazione
+ClinAgg   ..> Eureka     : registrazione
+CareCoord ..> Eureka     : registrazione
+Gateway   ..> Eureka     : lookup lb://
+
+Anagrafe  ..> ConfigServer : spring.config.import
+Lab       ..> ConfigServer : spring.config.import
+Farmacia  ..> ConfigServer : spring.config.import
+Imaging   ..> ConfigServer : spring.config.import
+DiagAgg   ..> ConfigServer : spring.config.import
+ClinAgg   ..> ConfigServer : spring.config.import
+CareCoord ..> ConfigServer : spring.config.import
+Gateway   ..> ConfigServer : spring.config.import
+
+' ══════════════════════════════════════════════════════════════════
+' CONNESSIONI — Database
+' ══════════════════════════════════════════════════════════════════
+Anagrafe --> MySQL : JPA/Hibernate
+Lab      --> MySQL : JPA/Hibernate
+Farmacia --> MySQL : JPA/Hibernate
+Imaging  --> MySQL : JPA/Hibernate
+
+' ══════════════════════════════════════════════════════════════════
+' LEGENDA
+' ══════════════════════════════════════════════════════════════════
+legend right
+  |= Colore         |= Tipo              |
+  |<#D0E8FF> Blu    | Componente Infrastrutturale |
+  |<#D5F5D5> Verde  | Service Provider   |
+  |<#FFF3CC> Giallo | Service Prosumer   |
+  |<#F0D0FF> Viola  | Client             |
+  |  ──>     | Chiamata sincrona  |
+  |  ..>     | Chiamata asincrona / registrazione |
+endlegend
+
+@enduml

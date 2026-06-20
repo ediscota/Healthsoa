@@ -1,0 +1,56 @@
+@startuml sequence_uc2
+
+title UC-2 — Consultazione storico-clinico
+
+skinparam sequence {
+    ArrowColor #534AB7
+    ActorBorderColor #534AB7
+    LifeLineBorderColor #888780
+    LifeLineBackgroundColor #F1EFE8
+    ParticipantBorderColor #534AB7
+    ParticipantBackgroundColor #EEEDFE
+    ParticipantFontColor #3C3489
+    BoxBorderColor #B4B2A9
+    BoxBackgroundColor #F1EFE8
+}
+
+actor "Medico" as Client
+
+box "Infrastruttura" #F1EFE8
+    participant "API Gateway\n:9000" as GW
+end box
+
+box "Prosumer" #EEEDFE
+    participant "Clinical Aggregator\n:9202" as CLA
+end box
+
+box "Provider" #E1F5EE
+    participant "Anagrafe\n:9101 (SOAP)" as AN
+    participant "Farmacia\n:9103" as FA
+end box
+
+== Request ==
+
+Client -> GW  : GET /api/clinical/patients/{patientId}/profile
+GW     -> CLA : GET /patients/{patientId}/profile
+
+== SOAP calls — Anagrafe ==
+
+CLA ->  AN  : getPatientById(patientId)\n[SOAP]
+AN  --> CLA : PatientData
+CLA ->  AN  : getMedicalHistory(patientId)\n[SOAP]
+AN  --> CLA : List<Condition>
+CLA ->  AN  : getAllergies(patientId)\n[SOAP]
+AN  --> CLA : List<Allergy>
+
+== REST call — Farmacia ==
+
+CLA ->  FA  : GET /patients/{patientId}/prescriptions
+FA  --> CLA : List<Prescription>
+
+== Profile composition & response ==
+
+CLA --> GW     : ClinicalProfile
+GW  --> Client : 200 OK · ClinicalProfile
+
+@enduml

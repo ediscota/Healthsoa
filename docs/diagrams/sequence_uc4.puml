@@ -1,0 +1,41 @@
+@startuml sequence_uc4
+
+title UC-4 — Nuova prescrizione (interazione diretta client → provider)
+
+skinparam sequence {
+    ArrowColor #534AB7
+    ActorBorderColor #534AB7
+    LifeLineBorderColor #888780
+    LifeLineBackgroundColor #F1EFE8
+    ParticipantBorderColor #534AB7
+    ParticipantBackgroundColor #EEEDFE
+    ParticipantFontColor #3C3489
+    BoxBorderColor #B4B2A9
+    BoxBackgroundColor #F1EFE8
+}
+
+actor "Medico" as Client
+
+box "Infrastruttura" #F1EFE8
+    participant "API Gateway\n:9000" as GW
+end box
+
+box "Provider" #E1F5EE
+    participant "Farmacia\n:9103" as FA
+end box
+
+== Request ==
+
+Client -> GW : POST /api/pharmacy/patients/{patientId}/prescriptions\n{ drug, dosage, frequency, startDate, endDate, doctor }
+GW     -> FA : POST /patients/{patientId}/prescriptions
+
+== Persistence ==
+
+FA -> FA : save Prescription\n[JPA · MySQL schema: farmacia]
+
+== Response ==
+
+FA  --> GW     : 201 Created · Prescription
+GW  --> Client : 201 Created · Prescription
+
+@enduml
