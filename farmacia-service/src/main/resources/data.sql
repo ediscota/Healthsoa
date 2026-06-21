@@ -1,4 +1,6 @@
-INSERT INTO `prescription` (`patient_id`, `drug_name`, `atc_code`, `dosage`, `frequency`, `start_date`, `expected_end_date`, `prescribing_doctor`) VALUES
+-- INSERT IGNORE: idempotent on multiple instance startups (scaling).
+-- Rows that already exist (duplicate unique key) are silently skipped.
+INSERT IGNORE INTO `prescription` (`patient_id`, `drug_name`, `atc_code`, `dosage`, `frequency`, `start_date`, `expected_end_date`, `prescribing_doctor`) VALUES
 ('1', 'Amoxicillina', 'J01CA04', '1g', 'ogni 8 ore', '2026-06-01', '2026-06-10', 'Dr. Rossi'),
 ('1', 'Ramipril', 'C09AA05', '5mg', 'una volta al giorno', '2026-01-15', '2026-12-31', 'Dr. Bianchi'),
 ('2', 'Metformina', 'A10BA02', '500mg', 'due volte al giorno', '2025-03-10', '2026-12-31', 'Dr. Ferrari'),
