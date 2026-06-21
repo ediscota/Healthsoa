@@ -23,6 +23,23 @@ import java.util.List;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+/**
+ * Business logic layer for the Anagrafe Pazienti service (Provider 1).
+ *
+ * <p>Implements the three SOAP operations declared in {@code anagrafe.wsdl}:
+ * <ul>
+ *   <li>{@link #getPatientById} — demographic lookup by numeric identifier;</li>
+ *   <li>{@link #getMedicalHistory} — retrieves all ICD-10 coded diagnoses for a patient;</li>
+ *   <li>{@link #getAllergies} — retrieves all known allergic reactions for a patient.</li>
+ * </ul>
+ *
+ * <p>All three operations map JPA entities to JAX-WS generated types (located in
+ * the {@code it.disim.univaq.sose.healthsoa.anagrafe.generated} package, created
+ * at build time by {@code cxf-codegen-plugin} from the WSDL).
+ * The private helper methods ({@code toPatientWs}, {@code toConditionWs}, {@code toAllergyWs})
+ * perform the JPA→JAXB conversion including the {@code LocalDate}→{@code XMLGregorianCalendar}
+ * transformation required by the SOAP date type.
+ */
 @Service
 public class AnagrafeService {
 
@@ -38,12 +55,26 @@ public class AnagrafeService {
         this.allergyRepository = allergyRepository;
     }
 
+    /**
+     * Returns demographic data for a patient identified by their numeric database ID.
+     *
+     * @param patientId string representation of the patient's primary key
+     * @return JAX-WS {@code Patient} type populated from the JPA entity
+     * @throws RuntimeException if no patient with the given ID exists
+     */
     public Patient getPatientById(String patientId) {
         PatientEntity entity = patientRepository.findById(Long.parseLong(patientId))
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato: " + patientId));
         return toPatientWs(entity);
     }
 
+    /**
+     * Returns the full medical history (list of ICD-10 conditions) for a patient.
+     *
+     * @param patientId string representation of the patient's primary key
+     * @return JAX-WS {@code ConditionList} with all associated diagnoses
+     * @throws RuntimeException if no patient with the given ID exists
+     */
     public ConditionList getMedicalHistory(String patientId) {
         PatientEntity patient = patientRepository.findById(Long.parseLong(patientId))
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato: " + patientId));
@@ -53,6 +84,13 @@ public class AnagrafeService {
         return list;
     }
 
+    /**
+     * Returns all known allergies for a patient.
+     *
+     * @param patientId string representation of the patient's primary key
+     * @return JAX-WS {@code AllergyList} with all associated allergy records
+     * @throws RuntimeException if no patient with the given ID exists
+     */
     public AllergyList getAllergies(String patientId) {
         PatientEntity patient = patientRepository.findById(Long.parseLong(patientId))
                 .orElseThrow(() -> new RuntimeException("Paziente non trovato: " + patientId));

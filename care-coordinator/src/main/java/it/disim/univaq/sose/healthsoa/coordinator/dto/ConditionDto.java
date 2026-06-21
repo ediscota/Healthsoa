@@ -1,7 +1,12 @@
 package it.disim.univaq.sose.healthsoa.coordinator.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+/** An ICD-10 coded condition as deserialized from the Clinical Aggregator response. */
+@Schema(description = "An ICD-10 coded condition from the patient's medical history")
 public class ConditionDto {
 
+    @Schema(description = "Condition description", example = "Ipertensione arteriosa essenziale")
     private String description;
     private String icdCode;
     private String diagnosisDate;

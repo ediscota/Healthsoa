@@ -16,33 +16,65 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JPA entity representing a laboratory test order.
+ *
+ * <p>Maps to the {@code test_order} table in the {@code laboratorio} MySQL schema.
+ * Each order goes through the lifecycle defined by {@link OrderStatus}:
+ * PENDING → PROCESSING → COMPLETED (or ERROR).
+ *
+ * <p>An order belongs to one patient and one exam panel. When the processing
+ * completes, a list of {@link Measurement} entities is attached (one per parameter
+ * in the panel). If a callback URL was registered, the service POSTs the result
+ * to that URL immediately after transitioning to COMPLETED.
+ *
+ * <p>The {@code callbackUrl} is optional and may be set either at creation time or
+ * later via {@code POST /tests/orders/{id}/callback}.
+ */
 @Entity
 @Table(name = "test_order")
 public class TestOrder {
 
+    /** Auto-generated primary key; returned to the client as {@code orderId}. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Identifier of the patient for whom the order was placed. */
     @Column(name = "patient_id", nullable = false)
     private String patientId;
 
+    /**
+     * Code identifying the exam panel (e.g., {@code PANEL_RENAL}, {@code CBC}).
+     * Determines which measurements are generated during processing.
+     */
     @Column(name = "exam_code", nullable = false)
     private String examCode;
 
+    /** Current processing state of the order. Persisted as a string. */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
 
+    /**
+     * Optional webhook URL. When set, the service POSTs the {@code TestResultDto}
+     * here upon completion. Delivery is best-effort; failures are silently ignored.
+     */
     @Column(name = "callback_url")
     private String callbackUrl;
 
+    /** Timestamp when the order was first created. */
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    /** Timestamp of the last status transition. */
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * Measurements produced by the analysis. Loaded lazily; only populated after
+     * the order reaches COMPLETED status.
+     */
     @OneToMany(mappedBy = "testOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Measurement> measurements = new ArrayList<>();
 

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@Tag(name = "Prescrizioni", description = "Gestione delle prescrizioni farmacologiche del paziente")
+@Tag(name = "Prescriptions", description = "Management of pharmaceutical prescriptions for patients")
 public class PrescriptionController {
 
     private final PrescriptionService prescriptionService;
@@ -35,32 +35,32 @@ public class PrescriptionController {
         this.prescriptionService = prescriptionService;
     }
 
-    @Operation(summary = "Prescrizioni attive del paziente",
-               description = "Restituisce l'elenco delle prescrizioni farmacologiche attive per il paziente indicato.")
-    @ApiResponse(responseCode = "200", description = "Elenco prescrizioni restituito correttamente")
+    @Operation(summary = "Get active prescriptions for a patient",
+               description = "Returns the list of active pharmaceutical prescriptions for the specified patient.")
+    @ApiResponse(responseCode = "200", description = "Prescription list returned successfully")
     @GetMapping("/patients/{patientId}/prescriptions")
     public List<PrescriptionDto> getPrescriptions(
-            @Parameter(description = "Identificativo paziente") @PathVariable String patientId) {
+            @Parameter(description = "Numeric patient identifier") @PathVariable String patientId) {
         return prescriptionService.getActivePrescriptions(patientId);
     }
 
-    @Operation(summary = "Crea una nuova prescrizione",
-               description = "Registra una nuova prescrizione farmacologica per il paziente. " +
-                             "Chiamata diretta client→provider (UC-4): nessun prosumer è coinvolto. " +
-                             "Ritorna 201 Created con la prescrizione salvata nel body, incluso l'ID assegnato.")
+    @Operation(summary = "Create a new prescription",
+               description = "Registers a new pharmaceutical prescription for the patient. " +
+                             "Direct client→provider call (UC-4): no prosumer is involved. " +
+                             "Returns 201 Created with the saved prescription in the body, including the assigned ID.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Prescrizione creata correttamente"),
-        @ApiResponse(responseCode = "400", description = "Dati obbligatori mancanti o malformati")
+        @ApiResponse(responseCode = "201", description = "Prescription created successfully"),
+        @ApiResponse(responseCode = "400", description = "Required fields missing or malformed")
     })
     @PostMapping("/patients/{patientId}/prescriptions")
     public ResponseEntity<PrescriptionDto> createPrescription(
-            @Parameter(description = "Identificativo paziente") @PathVariable String patientId,
+            @Parameter(description = "Numeric patient identifier") @PathVariable String patientId,
             @Valid @RequestBody CreatePrescriptionRequest request) {
         PrescriptionDto created = prescriptionService.createPrescription(patientId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /** Traduce i fallimenti di validazione in una mappa campo→messaggio con status 400. */
+    /** Translates validation failures into a field→message map with HTTP 400. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationErrors(MethodArgumentNotValidException ex) {

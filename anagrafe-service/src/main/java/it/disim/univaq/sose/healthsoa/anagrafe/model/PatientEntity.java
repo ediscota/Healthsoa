@@ -16,36 +16,59 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JPA entity representing a patient in the Anagrafe Pazienti database.
+ *
+ * <p>Mapped to the {@code patient} table. Serves as the root aggregate for the
+ * patient's clinical data: conditions are stored in the {@code condition_entry}
+ * table, allergies in the {@code allergy} table, both linked by foreign key.
+ *
+ * <p>Exposed externally only via the SOAP endpoint ({@code AnagrafeEndpoint});
+ * never returned directly from a REST controller.
+ */
 @Entity
 @Table(name = "patient")
 public class PatientEntity {
 
+    /** Auto-generated primary key, referenced by consumers as the patient identifier. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Italian fiscal code (codice fiscale) — a unique 16-character alphanumeric
+     * identifier assigned by the Italian government. Used as the natural key in
+     * search operations (SOAP {@code getPatientByFiscalCode}).
+     */
     @Column(name = "fiscal_code", nullable = false, unique = true)
     private String fiscalCode;
 
+    /** Patient's given name. */
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    /** Patient's family name. */
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    /** Date of birth; used to compute age for risk analysis. */
     @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
+    /** Biological sex — see {@link GenderEnum}. */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GenderEnum gender;
 
+    /** Optional contact phone number. */
     @Column
     private String phone;
 
+    /** Medical history: all diagnoses and past admissions linked to this patient. */
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ConditionEntity> conditions = new ArrayList<>();
 
+    /** Allergy registry: all known allergic reactions for this patient. */
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AllergyEntity> allergies = new ArrayList<>();
 

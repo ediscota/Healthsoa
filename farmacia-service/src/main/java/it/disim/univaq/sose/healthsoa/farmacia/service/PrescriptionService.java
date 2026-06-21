@@ -9,6 +9,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Business logic layer for the Farmacia Service (Provider 3).
+ *
+ * <p>Implements two operations:
+ * <ul>
+ *   <li>{@link #getActivePrescriptions} — lists all prescriptions for a patient,
+ *       consumed by the Clinical Aggregator via Feign;</li>
+ *   <li>{@link #createPrescription} — persists a new prescription issued via UC-4
+ *       (the clinical workstation calling the Gateway directly).</li>
+ * </ul>
+ *
+ * <p>The private {@code toDto} method converts JPA entities to DTOs, keeping
+ * the persistence model isolated from the REST API contract.
+ */
 @Service
 public class PrescriptionService {
 
@@ -18,6 +32,12 @@ public class PrescriptionService {
         this.prescriptionRepository = prescriptionRepository;
     }
 
+    /**
+     * Returns all prescriptions for a patient as DTOs.
+     *
+     * @param patientId numeric patient identifier
+     * @return list of prescription DTOs (may be empty)
+     */
     public List<PrescriptionDto> getActivePrescriptions(String patientId) {
         return prescriptionRepository.findByPatientId(patientId)
                 .stream()
@@ -26,8 +46,12 @@ public class PrescriptionService {
     }
 
     /**
-     * Persiste una nuova prescrizione per il paziente indicato e restituisce
-     * il DTO con l'identificativo assegnato dal database.
+     * Persists a new prescription for the given patient and returns the saved DTO
+     * with the database-assigned identifier.
+     *
+     * @param patientId numeric patient identifier from the URL path variable
+     * @param request   validated request body with drug and dosage details
+     * @return DTO of the newly created prescription
      */
     @Transactional
     public PrescriptionDto createPrescription(String patientId, CreatePrescriptionRequest request) {

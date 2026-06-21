@@ -1,7 +1,17 @@
 package it.disim.univaq.sose.healthsoa.coordinator.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+/**
+ * A single lab measurement as deserialized from the Diagnostic Aggregator response.
+ * The {@code anomalyFlag} is the primary input for the {@code VALORE_CRITICO} rule
+ * in {@code RiskAnalyzer}.
+ */
+@Schema(description = "A single lab measurement with anomaly flag from the Diagnostic Aggregator")
 public class MeasurementDto {
 
+    /** Lab parameter name (e.g., "Creatinina", "Glicemia"). */
+    @Schema(description = "Parameter name", example = "Creatinina")
     private String parameter;
     private Double value;
     private String unit;

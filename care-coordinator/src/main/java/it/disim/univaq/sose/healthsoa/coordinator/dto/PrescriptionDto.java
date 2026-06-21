@@ -1,7 +1,16 @@
 package it.disim.univaq.sose.healthsoa.coordinator.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+/**
+ * A pharmaceutical prescription as deserialized from the Clinical Aggregator response.
+ * The {@code drugName} is matched against the patient's allergen list and the
+ * nephrotoxic-drug catalogue in {@code RiskAnalyzer}.
+ */
+@Schema(description = "A pharmaceutical prescription from the patient's clinical profile")
 public class PrescriptionDto {
 
+    @Schema(description = "Prescription identifier", example = "5")
     private Long id;
     private String patientId;
     private String drugName;

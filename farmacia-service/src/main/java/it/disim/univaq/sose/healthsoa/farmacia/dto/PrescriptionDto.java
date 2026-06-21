@@ -1,17 +1,46 @@
 package it.disim.univaq.sose.healthsoa.farmacia.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDate;
 
+/**
+ * DTO representation of a {@link it.disim.univaq.sose.healthsoa.farmacia.model.Prescription}.
+ *
+ * <p>Returned by all read endpoints of the Farmacia Service (
+ * {@code GET /patients/{patientId}/prescriptions} and
+ * {@code GET /patients/{patientId}/prescriptions/{id}}).
+ * Consumed by the Clinical Aggregator (Prosumer 2) when building the
+ * {@code ClinicalProfile.activePrescriptions} list.
+ */
+@Schema(description = "A pharmaceutical prescription issued by the Farmacia Service")
 public class PrescriptionDto {
 
+    @Schema(description = "Prescription identifier", example = "1")
     private Long id;
+
+    @Schema(description = "Patient identifier", example = "1")
     private String patientId;
+
+    @Schema(description = "Drug name (INN)", example = "Ibuprofene")
     private String drugName;
+
+    @Schema(description = "ATC classification code", example = "M01AE01")
     private String atcCode;
+
+    @Schema(description = "Dose amount per administration", example = "200mg")
     private String dosage;
+
+    @Schema(description = "Administration schedule", example = "twice daily")
     private String frequency;
+
+    @Schema(description = "Prescription issue date")
     private LocalDate startDate;
+
+    @Schema(description = "Expected end date (null for indefinite therapy)")
     private LocalDate expectedEndDate;
+
+    @Schema(description = "Prescribing doctor's name", example = "Dr. Bianchi")
     private String prescribingDoctor;
 
     public PrescriptionDto() {

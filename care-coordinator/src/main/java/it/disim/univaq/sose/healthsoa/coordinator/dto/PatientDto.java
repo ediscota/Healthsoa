@@ -1,7 +1,12 @@
 package it.disim.univaq.sose.healthsoa.coordinator.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+/** Patient demographic data as deserialized from the Clinical Aggregator response. */
+@Schema(description = "Patient demographic data from the Clinical Aggregator")
 public class PatientDto {
 
+    @Schema(description = "Patient identifier", example = "1")
     private long id;
     private String fiscalCode;
     private String firstName;
