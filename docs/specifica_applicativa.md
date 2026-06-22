@@ -233,8 +233,8 @@ Client → Gateway → Care Coordinator
 Care Coordinator →‖ Aggregatore Diagnostico  (parallelo)
 Care Coordinator →‖ Aggregatore Storico-Clinico  (parallelo)
   Aggregatore Diagnostico → Laboratorio (async: POST order)
+  Aggregatore Diagnostico → Laboratorio: GET /tests/orders/{orderId}/status (polling)
   Aggregatore Diagnostico → Imaging (GET reports)
-  Laboratorio --callback--> Aggregatore Diagnostico (esito pronto)
   Aggregatore Storico-Clinico → Anagrafe SOAP (getPatientById, getMedicalHistory, getAllergies)
   Aggregatore Storico-Clinico → Farmacia REST (getPrescriptions)
 ‖ (barriera: entrambi completati)
@@ -260,14 +260,14 @@ Client → Gateway → Aggregatore Diagnostico: orderTests(panelCode)
   Aggregatore Diagnostico → Laboratorio: POST /tests/orders (202 Accepted)
   Aggregatore Diagnostico → Client: 202 Accepted + trackingId
 --- (intervallo di elaborazione) ---
-[opzione A — polling]
+[polling]
   Client → Aggregatore Diagnostico: GET /tracking/{trackingId}/status
+  Aggregatore Diagnostico decodifica trackingId → recupera orderId
   Aggregatore Diagnostico → Laboratorio: GET /tests/orders/{orderId}/status
   Aggregatore Diagnostico → Client: stato corrente
-[opzione B — callback]
-  Laboratorio --webhook--> Aggregatore Diagnostico: esito pronto
-  Aggregatore Diagnostico: aggiorna stato interno
+--- (quando stato = COMPLETED) ---
   Client → Aggregatore Diagnostico: GET /tracking/{trackingId}/result
+  Aggregatore Diagnostico → Laboratorio: GET /tests/orders/{orderId}/result
   Aggregatore Diagnostico → Client: DiagnosticBundle
 ```
 

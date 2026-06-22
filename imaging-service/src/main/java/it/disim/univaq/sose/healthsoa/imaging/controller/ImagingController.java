@@ -111,8 +111,7 @@ public class ImagingController {
      * Submits a new asynchronous imaging order and returns 202 Accepted immediately.
      *
      * <p>Processing runs on the {@code imagingExecutor} thread pool, simulating the
-     * radiologist's reading time. The response body contains the {@code reportId}
-     * needed for status polling or callback registration.
+     * radiologist's reading time.
      *
      * @param request JSON body with {@code patientId} and {@code examType}
      * @return 202 Accepted with the assigned reportId and polling instructions
@@ -194,7 +193,7 @@ public class ImagingController {
                     .body(Map.of("error", e.getMessage(), "currentStatus", e.getCurrentStatus()));
         }
     }
-
+ /*
     /**
      * Registers or updates a webhook callback URL for an imaging order.
      *
@@ -206,15 +205,16 @@ public class ImagingController {
      * @param body JSON body containing the {@code callbackUrl}
      * @return 200 on successful registration, 404 if not found
      */
-    @Operation(
-        summary = "Register a callback webhook",
-        description = "Registers (or replaces) a callback URL for an imaging order. " +
-                      "The service will POST the completed ImagingReportDto to the given URL when processing finishes."
-    )
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Callback URL registered successfully"),
-        @ApiResponse(responseCode = "404", description = "Order not found")
-    })
+
+    // @Operation(
+    //     summary = "Register a callback webhook",
+    //     description = "Registers (or replaces) a callback URL for an imaging order. " +
+    //                   "The service will POST the completed ImagingReportDto to the given URL when processing finishes."
+    // )
+    // @ApiResponses({
+    //     @ApiResponse(responseCode = "200", description = "Callback URL registered successfully"),
+    //     @ApiResponse(responseCode = "404", description = "Order not found")
+    // })
     @PostMapping("/imaging/orders/{id}/callback")
     public ResponseEntity<?> registerCallback(
             @Parameter(description = "Report identifier") @PathVariable Long id,
@@ -226,4 +226,5 @@ public class ImagingController {
             return ResponseEntity.notFound().build();
         }
     }
+    
 }
