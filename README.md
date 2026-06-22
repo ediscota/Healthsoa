@@ -112,26 +112,13 @@ Anagrafe, Laboratorio, Imaging and Diagnostic Aggregator use `expose` instead of
 
 ## Verifying the system is up
 
-Wait until all containers reach the `healthy` / `running` state, then run:
-
-```bash
-# 1. Config Server health
-curl http://localhost:8888/actuator/health
-
-# 2. Eureka — verify all services have registered
-curl http://localhost:8761/eureka/apps
-
-# 3. API Gateway — end-to-end smoke test
-curl http://localhost:9000/api/coordinator/actuator/health
-```
-
-Alternatively, open the **Eureka dashboard** in a browser:
+Open the **Eureka dashboard** in a browser:
 
 ```
 http://localhost:8761
 ```
 
-All ten business microservices must appear with status `UP`.
+All business microservices must appear with status `UP`.
 
 ---
 
@@ -152,50 +139,8 @@ The interface provides four panels, one per use case:
 | Lab Panel Order | UC-3 | Diagnostic Aggregator → Laboratorio (asynchronous) |
 | New Prescription | UC-4 | Farmacia Service — direct client→provider interaction |
 
----
 
-## Smoke tests via curl
 
-### UC-1 — Full clinical assessment
-
-```bash
-curl -s http://localhost:9000/api/coordinator/patients/1/assessment | jq .
-```
-
-### UC-2 — Clinical history profile
-
-```bash
-curl -s http://localhost:9000/api/clinical/patients/1/profile | jq .
-```
-
-### UC-3 — Lab panel order (asynchronous)
-
-```bash
-# Submit order — returns 202 Accepted with a trackingId
-curl -s -X POST http://localhost:9000/api/diagnostic/patients/1/panels/CBC | jq .
-
-# Poll for status (replace <trackingId> with the value returned above)
-curl -s http://localhost:9000/api/diagnostic/tracking/<trackingId>/status | jq .
-
-# Retrieve result once status is COMPLETED
-curl -s http://localhost:9000/api/diagnostic/tracking/<trackingId>/result | jq .
-```
-
-### UC-4 — New prescription (direct client→provider)
-
-```bash
-curl -s -X POST http://localhost:9000/api/pharmacy/patients/1/prescriptions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "drugName": "Amoxicillin",
-    "atcCode": "J01CA04",
-    "dosage": "500mg",
-    "frequency": "every 8 hours",
-    "startDate": "2025-06-20",
-    "expectedEndDate": "2025-06-27",
-    "prescribingDoctor": "Dr. Smith"
-  }' | jq .
-```
 
 ### OpenAPI / Swagger UI
 
@@ -236,14 +181,3 @@ docker compose down
 docker compose down -v
 ```
 
----
-
-## Troubleshooting
-
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| A service does not appear in Eureka | Config Server was not yet `healthy` when the service started | `docker compose restart <service-name>` |
-| `Connection refused` at the Gateway | Discovery Server has not yet propagated registrations | Wait 30–60 seconds and retry |
-| `405 Method Not Allowed` on an endpoint | Container is running a stale image | `docker compose build <service-name> && docker compose up -d <service-name>` |
-| MySQL fails to start | Port 3306 is already in use on the host | Stop the local MySQL process or change the port mapping in `docker-compose.yml` |
-| Client receives no response | Gateway not yet registered with Eureka | Check `http://localhost:8761` and wait until all services show `UP` |
