@@ -39,7 +39,7 @@ import java.util.Map;
  * <p>All endpoints are accessible through the API Gateway at {@code /api/diagnostic/**}.
  */
 @RestController
-@Tag(name = "Diagnostic Aggregator", description = "Prosumer 1 — orchestrates lab and imaging providers; exposes async tracking for UC-3 and sync bundle for UC-1")
+@Tag(name = "Diagnostic Aggregator", description = "Prosumer 1 - orchestrates lab and imaging providers; exposes async tracking for UC-3 and sync bundle for UC-1")
 public class DiagnosticController {
 
     private final DiagnosticService diagnosticService;
@@ -53,7 +53,7 @@ public class DiagnosticController {
      *
      * <p>The aggregator forwards the order to the Laboratory Service (202 Accepted)
      * and returns a stateless {@code trackingId} to the caller. The trackingId is a
-     * Base64URL encoding of {@code patientId:panelCode:labOrderId} — no server-side
+     * Base64URL encoding of {@code patientId:panelCode:labOrderId} - no server-side
      * session is required to track the request.
      *
      * @param patientId numeric patient identifier (path variable)
@@ -129,7 +129,7 @@ public class DiagnosticController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "DiagnosticBundle returned successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid or malformed trackingId"),
-        @ApiResponse(responseCode = "409", description = "Lab order not yet completed — retry after polling status")
+        @ApiResponse(responseCode = "409", description = "Lab order not yet completed - retry after polling status")
     })
     @GetMapping("/tracking/{trackingId}/result")
     public ResponseEntity<?> getResult(

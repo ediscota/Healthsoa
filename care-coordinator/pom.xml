@@ -15,7 +15,7 @@
     <artifactId>care-coordinator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>care-coordinator</name>
-    <description>Care Coordinator (Prosumer 3) — HealthSOA</description>
+    <description>Care Coordinator (Prosumer 3) - HealthSOA</description>
 
     <properties>
         <java.version>17</java.version>

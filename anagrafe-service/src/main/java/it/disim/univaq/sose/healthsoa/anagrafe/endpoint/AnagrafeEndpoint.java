@@ -26,9 +26,9 @@ import jakarta.jws.WebService;
  *
  * <p>Operations:
  * <ul>
- *   <li>{@link #getPatientById} — demographic lookup;</li>
- *   <li>{@link #getMedicalHistory} — ICD-10 coded condition list;</li>
- *   <li>{@link #getAllergies} — known allergy list.</li>
+ *   <li>{@link #getPatientById} - demographic lookup;</li>
+ *   <li>{@link #getMedicalHistory} - ICD-10 coded condition list;</li>
+ *   <li>{@link #getAllergies} - known allergy list.</li>
  * </ul>
  */
 @WebService(

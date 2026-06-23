@@ -14,7 +14,7 @@ import java.time.LocalDate;
  *
  * <p>Mapped to the {@code prescription} table. One row per patient-drug combination.
  * The {@code patientId} is a string (not a foreign key) because the Farmacia Service
- * does not co-locate the patient database — patient existence is assumed to be
+ * does not co-locate the patient database - patient existence is assumed to be
  * guaranteed by the caller (the clinical workstation via UC-4, or the seed script).
  *
  * <p>Exposed via REST:

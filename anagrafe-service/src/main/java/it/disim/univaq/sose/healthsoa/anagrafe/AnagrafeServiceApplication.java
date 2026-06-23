@@ -10,7 +10,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Entry point for the Anagrafe Pazienti service (Provider 1 — SOAP).
+ * Entry point for the Anagrafe Pazienti service (Provider 1 - SOAP).
  *
  * <p>Spring Boot application that exposes a contract-first SOAP endpoint at
  * {@code /soap/anagrafe} using Apache CXF. The WSDL is defined at

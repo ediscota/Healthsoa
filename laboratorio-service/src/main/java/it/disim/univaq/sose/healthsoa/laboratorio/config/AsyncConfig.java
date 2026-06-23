@@ -17,10 +17,10 @@ import java.util.concurrent.Executor;
  *
  * <p>Pool parameters:
  * <ul>
- *   <li>Core threads: 4 — always available for concurrent orders;</li>
- *   <li>Max threads: 10 — burst capacity during peak order intake;</li>
- *   <li>Queue capacity: 50 — orders waiting for a free thread before rejection;</li>
- *   <li>Thread name prefix: {@code lab-async-} — visible in thread dumps and logs.</li>
+ *   <li>Core threads: 4 - always available for concurrent orders;</li>
+ *   <li>Max threads: 10 - burst capacity during peak order intake;</li>
+ *   <li>Queue capacity: 50 - orders waiting for a free thread before rejection;</li>
+ *   <li>Thread name prefix: {@code lab-async-} - visible in thread dumps and logs.</li>
  * </ul>
  */
 @Configuration

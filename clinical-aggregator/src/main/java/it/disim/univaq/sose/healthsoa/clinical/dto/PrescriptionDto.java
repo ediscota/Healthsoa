@@ -11,9 +11,9 @@ import java.time.LocalDate;
  * Feign client. Used by the Care Coordinator's {@code RiskAnalyzer} to detect:
  * <ul>
  *   <li>Nephrotoxic drugs (e.g., NSAIDs, aminoglycosides) in a patient with
- *       impaired renal function — specification §6, rule 1;</li>
+ *       impaired renal function - specification §6, rule 1;</li>
  *   <li>Prescriptions that contain an allergen the patient is known to react to
- *       — specification §6, rule 2.</li>
+ *       - specification §6, rule 2.</li>
  * </ul>
  */
 @Schema(description = "An active pharmaceutical prescription from the Farmacia Service")

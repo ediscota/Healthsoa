@@ -15,10 +15,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
  *
  * <p>Key annotations:
  * <ul>
- *   <li>{@code @EnableDiscoveryClient} — registers with Eureka under the name
+ *   <li>{@code @EnableDiscoveryClient} - registers with Eureka under the name
  *       {@code imaging-service} so that Feign clients in the Diagnostic Aggregator
  *       can resolve it dynamically;</li>
- *   <li>{@code @EnableAsync} — activates Spring's async infrastructure, enabling
+ *   <li>{@code @EnableAsync} - activates Spring's async infrastructure, enabling
  *       {@code @Async("imagingExecutor")} in {@code ImagingService}.</li>
  * </ul>
  *

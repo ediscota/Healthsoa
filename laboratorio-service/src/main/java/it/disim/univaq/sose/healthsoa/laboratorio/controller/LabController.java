@@ -129,7 +129,7 @@ public class LabController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Result returned successfully"),
         @ApiResponse(responseCode = "404", description = "Order not found"),
-        @ApiResponse(responseCode = "409", description = "Order not yet completed — retry after polling status")
+        @ApiResponse(responseCode = "409", description = "Order not yet completed - retry after polling status")
     })
     @GetMapping("/{id}/result")
     public ResponseEntity<?> getResult(

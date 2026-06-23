@@ -14,9 +14,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
  *
  * <p>Key annotations:
  * <ul>
- *   <li>{@code @EnableDiscoveryClient} — registers with Eureka so that Feign clients
+ *   <li>{@code @EnableDiscoveryClient} - registers with Eureka so that Feign clients
  *       in the Diagnostic Aggregator can resolve {@code laboratorio-service} by name;</li>
- *   <li>{@code @EnableAsync} — activates Spring's async processing infrastructure,
+ *   <li>{@code @EnableAsync} - activates Spring's async processing infrastructure,
  *       enabling {@code @Async("labExecutor")} in {@code LabService}.</li>
  * </ul>
  *

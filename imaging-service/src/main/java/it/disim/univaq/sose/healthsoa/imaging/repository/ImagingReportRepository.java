@@ -11,9 +11,9 @@ import java.util.List;
  * <p>Provides standard CRUD operations via {@link JpaRepository} and two
  * derived query methods used by the controller and Feign clients:
  * <ul>
- *   <li>{@link #findByPatientId} — used by the Diagnostic Aggregator to retrieve
+ *   <li>{@link #findByPatientId} - used by the Diagnostic Aggregator to retrieve
  *       all archived reports for a patient when building the {@code DiagnosticBundle};</li>
- *   <li>{@link #findByPatientIdAndExamType} — filtered variant used when a specific
+ *   <li>{@link #findByPatientIdAndExamType} - filtered variant used when a specific
  *       exam panel is requested (e.g., all {@code PANEL_RENAL} imaging for patient 1).</li>
  * </ul>
  */

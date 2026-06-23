@@ -73,7 +73,7 @@ public class LabService {
     /**
      * Lavorazione asincrona: transita PROCESSING, dorme processingDelayMs,
      * persiste i Measurement, transita COMPLETED, chiama la callback se registrata.
-     * Annotato @Async("labExecutor") — viene eseguito su un thread del pool dedicato
+     * Annotato @Async("labExecutor") - viene eseguito su un thread del pool dedicato
      * senza bloccare il thread HTTP che ha risposto 202 al client.
      */
     @Async("labExecutor")

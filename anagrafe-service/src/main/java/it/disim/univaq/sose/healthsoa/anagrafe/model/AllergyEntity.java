@@ -41,7 +41,7 @@ public class AllergyEntity {
     @Column(nullable = false)
     private String substance;
 
-    /** Clinical severity of the allergic reaction — see {@link ReactionSeverityEnum}. */
+    /** Clinical severity of the allergic reaction - see {@link ReactionSeverityEnum}. */
     @Enumerated(EnumType.STRING)
     @Column(name = "reaction_severity", nullable = false)
     private ReactionSeverityEnum reactionSeverity;

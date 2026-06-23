@@ -17,7 +17,7 @@ import java.time.LocalDate;
  * Reports created via {@code POST /imaging/orders} start with {@code status=PENDING}
  * and are completed asynchronously.
  */
-@Schema(description = "Radiology report — either archived (pre-existing) or the result of an async imaging order")
+@Schema(description = "Radiology report - either archived (pre-existing) or the result of an async imaging order")
 public class ImagingReportDto {
 
     /** Database-assigned identifier of this report. */

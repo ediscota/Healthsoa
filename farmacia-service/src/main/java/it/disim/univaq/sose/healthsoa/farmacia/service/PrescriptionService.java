@@ -14,9 +14,9 @@ import java.util.List;
  *
  * <p>Implements two operations:
  * <ul>
- *   <li>{@link #getActivePrescriptions} — lists all prescriptions for a patient,
+ *   <li>{@link #getActivePrescriptions} - lists all prescriptions for a patient,
  *       consumed by the Clinical Aggregator via Feign;</li>
- *   <li>{@link #createPrescription} — persists a new prescription issued via UC-4
+ *   <li>{@link #createPrescription} - persists a new prescription issued via UC-4
  *       (the clinical workstation calling the Gateway directly).</li>
  * </ul>
  *

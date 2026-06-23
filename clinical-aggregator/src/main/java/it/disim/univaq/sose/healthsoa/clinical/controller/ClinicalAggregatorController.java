@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>All requests are routed through the API Gateway at {@code /api/clinical/**}.
  */
 @RestController
-@Tag(name = "Clinical Aggregator", description = "Prosumer 2 — aggregates SOAP anagrafe data and REST prescriptions into a ClinicalProfile (UC-2 and UC-1)")
+@Tag(name = "Clinical Aggregator", description = "Prosumer 2 - aggregates SOAP anagrafe data and REST prescriptions into a ClinicalProfile (UC-2 and UC-1)")
 public class ClinicalAggregatorController {
 
     private final ClinicalAggregatorService service;

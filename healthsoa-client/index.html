@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HealthSOA — Clinical Workstation</title>
+  <title>HealthSOA - Clinical Workstation</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -615,9 +615,9 @@
         <p class="uc-desc">Submit a laboratory panel and monitor results as they become available.</p>
         <label>Diagnostic Panel</label>
         <select id="panelCode">
-          <option value="PANEL_RENAL">Renal Panel — Kidney function</option>
-          <option value="PANEL_METABOLIC">Metabolic Panel — Metabolic profile</option>
-          <option value="PANEL_CBC">CBC Panel — Complete blood count</option>
+          <option value="PANEL_RENAL">Renal Panel - Kidney function</option>
+          <option value="PANEL_METABOLIC">Metabolic Panel - Metabolic profile</option>
+          <option value="PANEL_CBC">CBC Panel - Complete blood count</option>
         </select>
         <button class="btn btn-emerald" onclick="runUC3()">Submit Order</button>
       </div>
@@ -692,7 +692,7 @@
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        <p>No data loaded — select a patient and a clinical action</p>
+        <p>No data loaded - select a patient and a clinical action</p>
       </div>
     </div>
   </div>
@@ -729,7 +729,7 @@
   }
 
   function clearOutput() {
-    renderArea('<div class="empty-state"><p>No data loaded — select a patient and a clinical action</p></div>');
+    renderArea('<div class="empty-state"><p>No data loaded - select a patient and a clinical action</p></div>');
     document.getElementById('pollLog').style.display = 'none';
     document.getElementById('pollLog').innerHTML = '';
     setTitle('Select a clinical action from the left panel');
@@ -850,8 +850,8 @@
         <div class="rx-name">${esc(rx.drugName)}</div>
         <div class="rx-dose">${esc(rx.dosage)} &nbsp;·&nbsp; ${esc(rx.frequency)}</div>
         <div class="rx-meta">
-          ${esc(rx.startDate || '—')} → ${esc(rx.expectedEndDate || '—')}
-          &nbsp;·&nbsp; Prescribed by ${esc(rx.prescribingDoctor || '—')}
+          ${esc(rx.startDate || '-')} → ${esc(rx.expectedEndDate || '-')}
+          &nbsp;·&nbsp; Prescribed by ${esc(rx.prescribingDoctor || '-')}
         </div>
       </div>`).join('');
 
@@ -963,23 +963,23 @@
               </div>
               <div class="data-field">
                 <span class="data-label">Date of Birth</span>
-                <span class="data-value">${esc(p.dateOfBirth || '—')}</span>
+                <span class="data-value">${esc(p.dateOfBirth || '-')}</span>
               </div>
               <div class="data-field">
                 <span class="data-label">Gender</span>
-                <span class="data-value">${esc(genderMap[p.gender] || p.gender || '—')}</span>
+                <span class="data-value">${esc(genderMap[p.gender] || p.gender || '-')}</span>
               </div>
               <div class="data-field">
                 <span class="data-label">Blood Type</span>
-                <span class="data-value">${esc(p.bloodType || '—')}</span>
+                <span class="data-value">${esc(p.bloodType || '-')}</span>
               </div>
               <div class="data-field">
                 <span class="data-label">Phone</span>
-                <span class="data-value">${esc(p.phone || '—')}</span>
+                <span class="data-value">${esc(p.phone || '-')}</span>
               </div>
               <div class="data-field">
                 <span class="data-label">Fiscal Code</span>
-                <span class="data-value">${esc(p.fiscalCode || '—')}</span>
+                <span class="data-value">${esc(p.fiscalCode || '-')}</span>
               </div>
             </div>
           </div>
@@ -992,7 +992,7 @@
         return `<div class="hist-item">
           <div class="hist-name">${esc(h.description || '')}</div>
           <div class="hist-meta">
-            Diagnosed: ${esc(h.diagnosisDate || '—')} &nbsp;·&nbsp;
+            Diagnosed: ${esc(h.diagnosisDate || '-')} &nbsp;·&nbsp;
             <span class="${active ? 'hist-active' : 'hist-resolved'}">${esc(h.status || '')}</span>
           </div>
         </div>`;
@@ -1044,7 +1044,7 @@
 
   function statusMsg(st) {
     switch ((st || '').toUpperCase()) {
-      case 'PENDING':    return 'Order received — waiting for the laboratory to begin analysis...';
+      case 'PENDING':    return 'Order received - waiting for the laboratory to begin analysis...';
       case 'PROCESSING': return 'Analysis in progress, please wait...';
       case 'COMPLETED':  return 'Analysis complete.';
       case 'ERROR':      return 'An error occurred during laboratory analysis.';
@@ -1066,7 +1066,7 @@
 
   async function runUC1() {
     const p = pid(); if (!p) return;
-    setTitle('Fitness Assessment — Patient ' + p);
+    setTitle('Fitness Assessment - Patient ' + p);
     clearPollLog();
     setStatus('Contacting clinical services, please wait...', 'loading', true);
     disableAll(true);
@@ -1080,7 +1080,7 @@
                        : outcome;
       const flags = (result.riskFlags || []).length;
       const color = outcome === 'IDONEO' ? 'success' : outcome === 'CON_RISERVA' ? 'loading' : 'error';
-      setStatus(`Assessment complete — ${outcomeTxt} — ${flags} risk flag(s)`, color);
+      setStatus(`Assessment complete - ${outcomeTxt} - ${flags} risk flag(s)`, color);
     } catch (e) {
       handleError(e);
     } finally {
@@ -1092,7 +1092,7 @@
 
   async function runUC2() {
     const p = pid(); if (!p) return;
-    setTitle('Clinical Profile — Patient ' + p);
+    setTitle('Clinical Profile - Patient ' + p);
     clearPollLog();
     setStatus('Retrieving clinical profile...', 'loading', true);
     disableAll(true);
@@ -1101,7 +1101,7 @@
       renderUC2(result);
       const rxCount = (result.activePrescriptions || []).length;
       const alCount = (result.allergies || []).length;
-      setStatus(`Profile loaded — ${rxCount} active prescription(s) · ${alCount} known allergy/allergies`, 'success');
+      setStatus(`Profile loaded - ${rxCount} active prescription(s) · ${alCount} known allergy/allergies`, 'success');
     } catch (e) {
       handleError(e);
     } finally {
@@ -1117,7 +1117,7 @@
     const p = pid(); if (!p) return;
     const panel = document.getElementById('panelCode').value;
     const panelLabel = PANEL_LABELS[panel] || panel;
-    setTitle(panelLabel + ' — Patient ' + p);
+    setTitle(panelLabel + ' - Patient ' + p);
     clearPollLog();
     setStatus('Submitting diagnostic order...', 'loading', true);
     disableAll(true);
@@ -1128,9 +1128,9 @@
         { method: 'POST', body: JSON.stringify({ panelCode: panel }) }
       );
       const trackingId = orderResp.trackingId;
-      pollLog('Order submitted — monitoring results...', 'ok');
+      pollLog('Order submitted - monitoring results...', 'ok');
       showPending(panelLabel, 0, 30);
-      setStatus('Analysis submitted — monitoring progress...', 'loading', true);
+      setStatus('Analysis submitted - monitoring progress...', 'loading', true);
 
       uc3Polling = true;
       let attempts = 0;
@@ -1148,7 +1148,7 @@
             pollLog(msg, 'ok');
             const result = await apiFetch(`${GW}/api/diagnostic/tracking/${trackingId}/result`);
             renderUC3(result);
-            setStatus(`Results ready — ${panelLabel} completed.`, 'success');
+            setStatus(`Results ready - ${panelLabel} completed.`, 'success');
             uc3Polling = false;
             break;
           } else if (st === 'ERROR') {
@@ -1163,7 +1163,7 @@
             setStatus(msg, 'loading', true);
           }
         } catch (pollErr) {
-          pollLog('Temporary connection issue — retrying...', 'wait');
+          pollLog('Temporary connection issue - retrying...', 'wait');
         }
       }
 
@@ -1178,7 +1178,7 @@
     }
   }
 
-  // ── UC-4 — Nuova Prescrizione (diretta client→provider, nessun prosumer) ──
+  // ── UC-4 - Nuova Prescrizione (diretta client→provider, nessun prosumer) ──
 
   async function runUC4() {
     const p = document.getElementById('uc4PatientId').value.trim();
@@ -1198,7 +1198,7 @@
       return;
     }
 
-    setTitle('New Prescription — Patient ' + p);
+    setTitle('New Prescription - Patient ' + p);
     clearPollLog();
     setStatus('Sending prescription to the pharmacy system...', 'loading', true);
     disableAll(true);
@@ -1217,7 +1217,7 @@
     } catch (e) {
       if (e && e.status === 400 && e.body && typeof e.body === 'object') {
         const msgs = Object.entries(e.body).map(([k, v]) => `${k}: ${v}`).join(' · ');
-        setStatus('Invalid data — please check the form fields.', 'error');
+        setStatus('Invalid data - please check the form fields.', 'error');
         renderArea(`<div class="error-card">Validation error: ${esc(msgs)}</div>`);
       } else {
         handleError(e);
@@ -1229,7 +1229,7 @@
 
   function renderCreatedPrescription(rx) {
     return `
-      <div class="rx-created-banner">✓ Prescription registered successfully (ID: ${esc(String(rx.id ?? '—'))})</div>
+      <div class="rx-created-banner">✓ Prescription registered successfully (ID: ${esc(String(rx.id ?? '-'))})</div>
       <div class="clinical-card">
         <div class="card-header">New Prescription</div>
         <div class="card-body">
@@ -1237,13 +1237,13 @@
             <div class="rx-name">${esc(rx.drugName)}</div>
             <div class="rx-dose">${esc(rx.dosage)} &nbsp;·&nbsp; ${esc(rx.frequency)}</div>
             <div class="rx-meta" style="margin-top:6px">
-              <span style="color:#374151">ATC Code:</span> ${esc(rx.atcCode || '—')}
+              <span style="color:#374151">ATC Code:</span> ${esc(rx.atcCode || '-')}
             </div>
             <div class="rx-meta">
-              Start: ${esc(rx.startDate || '—')} &nbsp;→&nbsp; Expected end: ${esc(rx.expectedEndDate || '—')}
+              Start: ${esc(rx.startDate || '-')} &nbsp;→&nbsp; Expected end: ${esc(rx.expectedEndDate || '-')}
             </div>
             <div class="rx-meta">
-              Prescribed by: ${esc(rx.prescribingDoctor || '—')}
+              Prescribed by: ${esc(rx.prescribingDoctor || '-')}
             </div>
           </div>
         </div>

@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>Accessible through the API Gateway at {@code /api/coordinator/**}.
  */
 @RestController
-@Tag(name = "Care Coordinator", description = "Prosumer 3 — parallel orchestration of Diagnostic Aggregator and Clinical Aggregator, risk analysis, and fitness report generation (UC-1)")
+@Tag(name = "Care Coordinator", description = "Prosumer 3 - parallel orchestration of Diagnostic Aggregator and Clinical Aggregator, risk analysis, and fitness report generation (UC-1)")
 public class CareCoordinatorController {
 
     private final FitnessAssessmentService assessmentService;
@@ -52,9 +52,9 @@ public class CareCoordinatorController {
      *
      * <p>The coordinator launches two parallel calls:
      * <ul>
-     *   <li>{@code GET /patients/{patientId}/bundle} on the Diagnostic Aggregator —
+     *   <li>{@code GET /patients/{patientId}/bundle} on the Diagnostic Aggregator -
      *       submits a PANEL_RENAL lab order and waits for the result (8-10 s);</li>
-     *   <li>{@code GET /patients/{patientId}/profile} on the Clinical Aggregator —
+     *   <li>{@code GET /patients/{patientId}/profile} on the Clinical Aggregator -
      *       retrieves anagrafe, medical history, allergies, and prescriptions.</li>
      * </ul>
      * Both calls run concurrently on the {@code coordinatorExecutor} pool; the response

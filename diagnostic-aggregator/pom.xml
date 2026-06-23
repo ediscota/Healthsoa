@@ -15,7 +15,7 @@
     <artifactId>diagnostic-aggregator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>diagnostic-aggregator</name>
-    <description>Aggregatore Diagnostico (Prosumer 1) — HealthSOA</description>
+    <description>Aggregatore Diagnostico (Prosumer 1) - HealthSOA</description>
 
     <properties>
         <java.version>17</java.version>

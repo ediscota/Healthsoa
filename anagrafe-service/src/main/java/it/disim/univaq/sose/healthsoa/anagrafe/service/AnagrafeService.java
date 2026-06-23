@@ -14,7 +14,6 @@ import it.disim.univaq.sose.healthsoa.anagrafe.model.PatientEntity;
 import it.disim.univaq.sose.healthsoa.anagrafe.repository.AllergyRepository;
 import it.disim.univaq.sose.healthsoa.anagrafe.repository.ConditionRepository;
 import it.disim.univaq.sose.healthsoa.anagrafe.repository.PatientRepository;
-import jakarta.xml.bind.DatatypeConverter;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
@@ -28,9 +27,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *
  * <p>Implements the three SOAP operations declared in {@code anagrafe.wsdl}:
  * <ul>
- *   <li>{@link #getPatientById} — demographic lookup by numeric identifier;</li>
- *   <li>{@link #getMedicalHistory} — retrieves all ICD-10 coded diagnoses for a patient;</li>
- *   <li>{@link #getAllergies} — retrieves all known allergic reactions for a patient.</li>
+ *   <li>{@link #getPatientById} - demographic lookup by numeric identifier;</li>
+ *   <li>{@link #getMedicalHistory} - retrieves all ICD-10 coded diagnoses for a patient;</li>
+ *   <li>{@link #getAllergies} - retrieves all known allergic reactions for a patient.</li>
  * </ul>
  *
  * <p>All three operations map JPA entities to JAX-WS generated types (located in

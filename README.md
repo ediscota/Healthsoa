@@ -2,7 +2,7 @@
 
 A microservices platform for supporting pre-procedure clinical assessment.
 
-Project developed for the *Service-oriented Software Engineering* course — academic year 2025/2026, University of L'Aquila.
+Project developed for the *Service-oriented Software Engineering* course - academic year 2025/2026, University of L'Aquila.
 
 ---
 
@@ -100,13 +100,13 @@ Services that use a database add MySQL as an additional dependency.
 | Web Client | **8080** | Clinical web interface (open in browser) |
 | API Gateway | **9000** | Single entry point for all client requests |
 | Config Server | 8888 | Centralized configuration |
-| Discovery Server (Eureka) | 8761 | Service registry — dashboard at `http://localhost:8761` |
+| Discovery Server (Eureka) | 8761 | Service registry - dashboard at `http://localhost:8761` |
 | Farmacia Service | 9103 | Direct access for smoke tests |
 | Clinical Aggregator | 9202 | Direct access for smoke tests |
 | Care Coordinator | 9203 | Direct access for smoke tests |
 | MySQL | 3306 | Database (direct access for debugging) |
 
-Anagrafe, Laboratorio, Imaging and Diagnostic Aggregator use `expose` instead of `ports`: they are reachable only on the internal Docker network and are never exposed directly to the host — all external traffic goes through the Gateway.
+Anagrafe, Laboratorio, Imaging and Diagnostic Aggregator use `expose` instead of `ports`: they are reachable only on the internal Docker network and are never exposed directly to the host - all external traffic goes through the Gateway.
 
 ---
 
@@ -137,7 +137,7 @@ The interface provides four panels, one per use case:
 | Full Clinical Assessment | UC-1 | Care Coordinator → Diagnostic Aggregator + Clinical Aggregator (parallel) |
 | Clinical Profile | UC-2 | Clinical Aggregator → Anagrafe (SOAP) + Farmacia (REST) |
 | Lab Panel Order | UC-3 | Diagnostic Aggregator → Laboratorio (asynchronous) |
-| New Prescription | UC-4 | Farmacia Service — direct client→provider interaction |
+| New Prescription | UC-4 | Farmacia Service - direct client→provider interaction |
 
 
 

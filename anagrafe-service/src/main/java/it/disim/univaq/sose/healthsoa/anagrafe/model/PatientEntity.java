@@ -36,7 +36,7 @@ public class PatientEntity {
     private Long id;
 
     /**
-     * Italian fiscal code (codice fiscale) — a unique 16-character alphanumeric
+     * Italian fiscal code (codice fiscale) - a unique 16-character alphanumeric
      * identifier assigned by the Italian government. Used as the natural key in
      * search operations (SOAP {@code getPatientByFiscalCode}).
      */
@@ -55,7 +55,7 @@ public class PatientEntity {
     @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    /** Biological sex — see {@link GenderEnum}. */
+    /** Biological sex - see {@link GenderEnum}. */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GenderEnum gender;

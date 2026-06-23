@@ -179,7 +179,7 @@ public class ImagingController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Completed report returned successfully"),
         @ApiResponse(responseCode = "404", description = "Order not found"),
-        @ApiResponse(responseCode = "409", description = "Order not yet completed — retry after polling status")
+        @ApiResponse(responseCode = "409", description = "Order not yet completed - retry after polling status")
     })
     @GetMapping("/imaging/orders/{id}/result")
     public ResponseEntity<?> getResult(

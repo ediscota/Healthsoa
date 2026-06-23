@@ -15,10 +15,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  * <p>Key annotations:
  * <ul>
- *   <li>{@code @EnableDiscoveryClient} — registers with Eureka as
+ *   <li>{@code @EnableDiscoveryClient} - registers with Eureka as
  *       {@code clinical-aggregator} so the Gateway and Care Coordinator can
  *       resolve it via service discovery;</li>
- *   <li>{@code @EnableFeignClients} — activates the {@code FarmaciaClient}
+ *   <li>{@code @EnableFeignClients} - activates the {@code FarmaciaClient}
  *       Feign proxy for calling the Farmacia REST service.</li>
  * </ul>
  *

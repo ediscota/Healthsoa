@@ -16,10 +16,10 @@ import java.util.concurrent.Executor;
  *
  * <p>Pool parameters:
  * <ul>
- *   <li>Core threads: 4 — baseline capacity for concurrent imaging orders;</li>
- *   <li>Max threads: 10 — burst capacity;</li>
- *   <li>Queue capacity: 50 — orders buffered before rejection;</li>
- *   <li>Thread name prefix: {@code imaging-async-} — visible in thread dumps.</li>
+ *   <li>Core threads: 4 - baseline capacity for concurrent imaging orders;</li>
+ *   <li>Max threads: 10 - burst capacity;</li>
+ *   <li>Queue capacity: 50 - orders buffered before rejection;</li>
+ *   <li>Thread name prefix: {@code imaging-async-} - visible in thread dumps.</li>
  * </ul>
  */
 @Configuration
