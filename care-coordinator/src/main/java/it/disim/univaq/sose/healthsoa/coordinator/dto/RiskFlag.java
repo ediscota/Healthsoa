@@ -23,10 +23,10 @@ public class RiskFlag {
 
     /**
      * Flag category:
-     * {@code CONTROINDICAZIONE_FARMACO} — drug contraindication;
-     * {@code VALORE_CRITICO} — critical lab value;
-     * {@code ALLERGIA_RILEVANTE} — allergy-prescription conflict;
-     * {@code ALTRO} — other (e.g., critical imaging finding).
+     * {@code CONTROINDICAZIONE_FARMACO} - drug contraindication;
+     * {@code VALORE_CRITICO} - critical lab value;
+     * {@code ALLERGIA_RILEVANTE} - allergy-prescription conflict;
+     * {@code ALTRO} - other (e.g., critical imaging finding).
      */
     @Schema(description = "Risk category",
             allowableValues = {"CONTROINDICAZIONE_FARMACO", "VALORE_CRITICO", "ALLERGIA_RILEVANTE", "ALTRO"},
@@ -39,9 +39,9 @@ public class RiskFlag {
 
     /**
      * Severity level:
-     * {@code INFO} — informational only, no action required;
-     * {@code WARNING} — caution, conditional fitness;
-     * {@code CRITICAL} — patient is not fit (NON_IDONEO).
+     * {@code INFO} - informational only, no action required;
+     * {@code WARNING} - caution, conditional fitness;
+     * {@code CRITICAL} - patient is not fit (NON_IDONEO).
      */
     @Schema(description = "Risk severity",
             allowableValues = {"INFO", "WARNING", "CRITICAL"}, example = "WARNING")

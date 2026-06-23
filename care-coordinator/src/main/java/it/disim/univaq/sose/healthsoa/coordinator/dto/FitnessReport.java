@@ -15,9 +15,9 @@ import java.util.List;
  *
  * <p>The {@code outcome} field is the headline result:
  * <ul>
- *   <li>{@code IDONEO} — no risk flags, patient is medically fit;</li>
- *   <li>{@code CON_RISERVA} — at least one WARNING flag, fitness is conditional;</li>
- *   <li>{@code NON_IDONEO} — at least one CRITICAL flag, patient is not fit.</li>
+ *   <li>{@code IDONEO} - no risk flags, patient is medically fit;</li>
+ *   <li>{@code CON_RISERVA} - at least one WARNING flag, fitness is conditional;</li>
+ *   <li>{@code NON_IDONEO} - at least one CRITICAL flag, patient is not fit.</li>
  * </ul>
  *
  * <p>The full {@code clinicalProfile} and {@code diagnosticBundle} are embedded

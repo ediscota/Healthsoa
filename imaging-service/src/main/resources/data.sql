@@ -4,7 +4,7 @@
 -- INSERT IGNORE: idempotente su più istanze (scaling), richiede unique constraint
 -- su (patient_id, exam_type, report_date) nella entity ImagingReport.
 
--- ── PANEL_RENAL (ecografia renale, urografia) ─────────────────────────────────
+-- PANEL_RENAL (ecografia renale, urografia)
 
 INSERT IGNORE INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
 VALUES
@@ -20,7 +20,7 @@ VALUES
  'Rene sinistro: presenza di calcolo iperecogeno da 7 mm a livello del bacinetto con cono d''ombra posteriore. Rene destro nella norma.',
  'Nefrolitiasi sinistra. Urologia di riferimento per valutazione terapeutica.', true, '2026-06-01', NULL);
 
--- ── PANEL_METABOLIC (ecografia addominale, TAC addome) ───────────────────────
+-- PANEL_METABOLIC (ecografia addominale, TAC addome)
 
 INSERT IGNORE INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
 VALUES
@@ -36,7 +36,7 @@ VALUES
  'Fegato nei limiti per dimensioni ed ecostruttura. Pancreas di aspetto regolare. Nessuna linfadenopatia addominale evidente.',
  'Esame nella norma.', false, '2026-06-03', NULL);
 
--- ── PANEL_CBC (radiografia torace, TAC torace) ───────────────────────────────
+-- PANEL_CBC (radiografia torace, TAC torace)
 
 INSERT IGNORE INTO `imaging_report` (`patient_id`, `exam_type`, `status`, `findings`, `conclusion`, `critical_flag`, `report_date`, `callback_url`)
 VALUES

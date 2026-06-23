@@ -24,8 +24,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  * <p>Key annotations:
  * <ul>
- *   <li>{@code @EnableDiscoveryClient} — registers with Eureka as {@code diagnostic-aggregator};</li>
- *   <li>{@code @EnableFeignClients} — activates Feign client proxies for
+ *   <li>{@code @EnableDiscoveryClient} - registers with Eureka as {@code diagnostic-aggregator};</li>
+ *   <li>{@code @EnableFeignClients} - activates Feign client proxies for
  *       {@code LaboratorioClient} and {@code ImagingClient}.</li>
  * </ul>
  */

@@ -6,7 +6,6 @@
       getMedicalHistory : lista di diagnosi e ricoveri pregressi (Condition ICD-10)
       getAllergies       : allergie note con tipo di reazione
 
-    I tipi rispecchiano il modello dati definito in docs/specifica_applicativa.md paragrafo 5.
     Namespace target: http://anagrafe.healthsoa.sose.univaq.disim.it/
 -->
 <definitions
@@ -46,10 +45,7 @@
                 </xsd:restriction>
             </xsd:simpleType>
 
-            <!--
-                Patient: identificativo, codice fiscale, nome, data di nascita, sesso, recapito.
-                Corrisponde alla struttura Patient definita in specifica_applicativa.md paragrafo 5.
-            -->
+            <!-- Patient: identificativo, codice fiscale, nome, data di nascita, sesso, recapito -->
             <xsd:complexType name="Patient">
                 <xsd:sequence>
                     <xsd:element name="id"          type="xsd:long"/>
@@ -65,7 +61,6 @@
             <!--
                 Condition: singola diagnosi o ricovero pregresso.
                 icd10Code segue la classificazione ICD-10.
-                Corrisponde alla struttura Condition in specifica_applicativa.md paragrafo 5.
             -->
             <xsd:complexType name="Condition">
                 <xsd:sequence>
@@ -77,10 +72,7 @@
                 </xsd:sequence>
             </xsd:complexType>
 
-            <!--
-                Allergy: sostanza allergizzante, tipo di reazione, data di rilevamento.
-                Corrisponde alla struttura Allergy in specifica_applicativa.md paragrafo 5.
-            -->
+            <!-- Allergy: sostanza allergizzante, tipo di reazione, data di rilevamento -->
             <xsd:complexType name="Allergy">
                 <xsd:sequence>
                     <xsd:element name="id"               type="xsd:long"/>

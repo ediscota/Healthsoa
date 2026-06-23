@@ -1,13 +1,11 @@
 -- Dati iniziali per il Laboratorio Service.
 -- Tre pazienti con 2 ordini COMPLETED ciascuno, misurazioni distinte e realistiche.
--- P001: creatinina molto elevata → attiva regole di rischio in UC-1.
+-- P001: creatinina molto elevata -> attiva regole di rischio in UC-1.
 -- P002: valori nella norma.
 -- P003: anomalie leggere (borderline).
 -- INSERT IGNORE: idempotente su più istanze (scaling), non causa errori di duplicate key.
 
--- ──────────────────────────────────────────────────────────────────────────────
--- PAZIENTE P001 — funzionalità renale compromessa
--- ──────────────────────────────────────────────────────────────────────────────
+-- PAZIENTE P001 - funzionalità renale compromessa
 
 INSERT IGNORE INTO `test_order` (`id`, `patient_id`, `exam_code`, `status`, `callback_url`, `created_at`, `updated_at`)
 VALUES (1, '1', 'PANEL_RENAL', 'COMPLETED', NULL, '2026-06-01 08:00:00', '2026-06-01 08:08:00');
@@ -27,9 +25,7 @@ VALUES
   (2, 'Leucociti',   6800.0,   'cel/uL', '4000-10000',      false),
   (2, 'Piastrine',   190000.0, 'cel/uL', '150000-400000',   false);
 
--- ──────────────────────────────────────────────────────────────────────────────
--- PAZIENTE P002 — valori nella norma
--- ──────────────────────────────────────────────────────────────────────────────
+-- PAZIENTE P002 - valori nella norma
 
 INSERT IGNORE INTO `test_order` (`id`, `patient_id`, `exam_code`, `status`, `callback_url`, `created_at`, `updated_at`)
 VALUES (3, '2', 'PANEL_RENAL', 'COMPLETED', NULL, '2026-06-02 08:00:00', '2026-06-02 08:08:00');
@@ -49,9 +45,7 @@ VALUES
   (4, 'Colesterolo',  178.0,  'mg/dL',   '0-200',    false),
   (4, 'Trigliceridi', 118.0,  'mg/dL',   '0-150',    false);
 
--- ──────────────────────────────────────────────────────────────────────────────
--- PAZIENTE P003 — anomalie borderline
--- ──────────────────────────────────────────────────────────────────────────────
+-- PAZIENTE P003 - anomalie borderline
 
 INSERT IGNORE INTO `test_order` (`id`, `patient_id`, `exam_code`, `status`, `callback_url`, `created_at`, `updated_at`)
 VALUES (5, '3', 'PANEL_RENAL', 'COMPLETED', NULL, '2026-06-03 08:00:00', '2026-06-03 08:08:00');

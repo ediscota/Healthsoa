@@ -10,15 +10,15 @@ import java.util.List;
  * <p>This is the top-level response object returned by
  * {@code GET /patients/{patientId}/profile}. It combines data from two providers:
  * <ul>
- *   <li>Anagrafe Pazienti (SOAP, Provider 1) — patient demographics, medical
+ *   <li>Anagrafe Pazienti (SOAP, Provider 1) - patient demographics, medical
  *       history (ICD-10 conditions), and known allergies;</li>
- *   <li>Farmacia Service (REST, Provider 3) — active pharmaceutical prescriptions.</li>
+ *   <li>Farmacia Service (REST, Provider 3) - active pharmaceutical prescriptions.</li>
  * </ul>
  *
  * <p>Consumed by:
  * <ul>
- *   <li>The clinical workstation web client (UC-2 — history consultation);</li>
- *   <li>The Care Coordinator (UC-1 — embedded in the {@code FitnessReport} and
+ *   <li>The clinical workstation web client (UC-2 - history consultation);</li>
+ *   <li>The Care Coordinator (UC-1 - embedded in the {@code FitnessReport} and
  *       used as input for risk analysis in {@code RiskAnalyzer}).</li>
  * </ul>
  */
